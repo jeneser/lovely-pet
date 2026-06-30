@@ -2,47 +2,51 @@
 
 ## Goal
 
-Create a repeatable pipeline that turns one approved pet resource folder into a customer-specific macOS `.app` without requiring the customer to install Node, Python, or a developer environment.
+Build one approved pet resource folder into a customer-specific macOS `.app` without requiring the customer to install Node, Python, or a developer environment.
+
+## MVP commands
+
+```bash
+make validate
+make build
+make package
+```
+
+`make package` calls:
+
+```text
+templates/macos-desktop-pet/scripts/package-app.sh
+```
+
+The script builds the Swift executable, creates an app bundle directory, copies the executable, copies the Info.plist template, and copies pet resources into the bundle.
 
 ## Inputs
 
 ```text
-customer-order.json
-pet.json
-frames/
-  idle/*.png
-  hover/*.png
-  tap/*.png
+templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json
+templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/
 ```
 
 ## Output
 
 ```text
-customer-builds/<order-id>/
-  LovelyPet-<pet-name>.app
-  LovelyPet-<pet-name>.zip
-  manifest.json
-  qa-report.md
+templates/macos-desktop-pet/dist/Lovely Pet Demo.app
 ```
 
-## Pipeline Steps
+## Production pipeline
 
 1. Validate customer order data.
-2. Validate `pet.json` against `pipeline/schemas/pet.schema.json`.
-3. Validate all referenced animation frames exist.
+2. Validate `pet.json`.
+3. Validate image assets and animation states.
 4. Copy the macOS template.
-5. Inject pet assets into `Resources/pets/<pet-id>`.
-6. Build with Swift Package Manager or Xcode.
-7. Package app bundle.
-8. Codesign.
-9. Notarize if distributing outside the Mac App Store.
-10. Zip and deliver.
+5. Inject customer pet assets.
+6. Build the Swift template.
+7. Create the `.app` bundle.
+8. Sign with Developer ID.
+9. Notarize for external distribution.
+10. Compress, upload, and deliver a secure download link.
 
-## MVP Implementation
-
-The MVP script `pipeline/scripts/build-macos-app.sh` is intentionally conservative. It prepares the directory structure and calls Swift build. A production version should add app bundle generation, signing identities, hardened runtime, notarization, and artifact upload.
-
-## Production Notes
+## Production notes
 
 - Keep AI generation outside the app template.
 - Keep payment secrets outside this repository.
