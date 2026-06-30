@@ -5,12 +5,13 @@ on:
   pull_request:
 
 jobs:
-  swift-build:
+  macos-template:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - name: Validate manifest shape
-        run: python3 pipeline/scripts/validate-pet-manifest.py templates/macos-desktop-pet/Resources/pets/default/pet.json || true
-      - name: Build template
-        working-directory: templates/macos-desktop-pet
-        run: swift build
+      - name: Validate manifest
+        run: make validate
+      - name: Build Swift template
+        run: make build
+      - name: Package app bundle
+        run: make package
