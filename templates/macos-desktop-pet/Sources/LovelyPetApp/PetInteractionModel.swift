@@ -32,8 +32,8 @@ final class PetInteractionModel: ObservableObject {
 
     func updatePointer(location: CGPoint, size: CGSize) {
         guard size.width > 0, size.height > 0 else { return }
-        let normalizedX = (location.x / size.width - 0.5) * 2
-        let normalizedY = (0.5 - location.y / size.height) * 2
+        let normalizedX = Double((location.x / size.width - 0.5) * 2)
+        let normalizedY = Double((0.5 - location.y / size.height) * 2)
         gazeX = max(-1, min(1, normalizedX))
         gazeY = max(-1, min(1, normalizedY))
         lastInteractionAt = Date()
