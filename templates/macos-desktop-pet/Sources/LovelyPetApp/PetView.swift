@@ -35,6 +35,12 @@ struct PetView: View {
                     interaction.tap()
                     player.handleTap()
                 }
+                .onLongPressGesture(minimumDuration: 0.45) {
+                    interaction.startDragging()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        interaction.endDragging()
+                    }
+                }
         }
         .frame(width: 300 * settings.scale, height: 320 * settings.scale)
         .background(Color.clear)
