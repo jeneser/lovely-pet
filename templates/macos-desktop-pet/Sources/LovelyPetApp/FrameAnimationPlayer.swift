@@ -65,6 +65,8 @@ final class FrameAnimationPlayer: ObservableObject {
 
         let frame = state.frames[min(frameIndex, state.frames.count - 1)]
         let resourcePath = "Resources/pets/\(manifest.id)/\(frame)"
-        currentImage = Bundle.module.image(forResource: resourcePath) ?? NSImage(systemSymbolName: "pawprint.fill", accessibilityDescription: "Lovely Pet")
+        let url = Bundle.module.url(forResource: resourcePath, withExtension: nil)
+        currentImage = url.flatMap { NSImage(contentsOf: $0) }
+            ?? NSImage(systemSymbolName: "pawprint.fill", accessibilityDescription: "Lovely Pet")
     }
 }
