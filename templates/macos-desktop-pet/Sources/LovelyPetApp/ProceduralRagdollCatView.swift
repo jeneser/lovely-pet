@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProceduralRagdollCatView: View {
     let hovering: Bool
+    let tapping: Bool
 
     private let furWhite = Color(red: 1.00, green: 0.98, blue: 0.92)
     private let cream = Color(red: 0.72, green: 0.55, blue: 0.38)
@@ -21,12 +22,14 @@ struct ProceduralRagdollCatView: View {
             eyes
             nose
             whiskers
+            if tapping { tapSparkles }
         }
         .frame(width: 260, height: 280)
-        .scaleEffect(hovering ? 1.06 : 1.0)
-        .offset(y: hovering ? -8 : 0)
-        .rotationEffect(.degrees(hovering ? 3 : 0))
+        .scaleEffect(tapping ? 1.10 : (hovering ? 1.06 : 1.0))
+        .offset(y: tapping ? -20 : (hovering ? -8 : 0))
+        .rotationEffect(.degrees(tapping ? -6 : (hovering ? 3 : 0)))
         .animation(.spring(response: 0.28, dampingFraction: 0.72), value: hovering)
+        .animation(.spring(response: 0.22, dampingFraction: 0.48), value: tapping)
         .accessibilityLabel("Lovely Ragdoll desktop pet")
     }
 
@@ -34,7 +37,7 @@ struct ProceduralRagdollCatView: View {
         Capsule()
             .fill(seal)
             .frame(width: 112, height: 40)
-            .rotationEffect(.degrees(-24))
+            .rotationEffect(.degrees(hovering ? -16 : -24))
             .offset(x: -74, y: 70)
     }
 
@@ -56,8 +59,8 @@ struct ProceduralRagdollCatView: View {
 
     private var paws: some View {
         HStack(spacing: 18) {
-            Capsule().fill(furWhite).frame(width: 30, height: 80)
-            Capsule().fill(furWhite).frame(width: 30, height: 80)
+            Capsule().fill(furWhite).frame(width: 30, height: tapping ? 70 : 80)
+            Capsule().fill(furWhite).frame(width: 30, height: hovering ? 72 : 80)
         }
         .offset(x: 32, y: 92)
     }
@@ -72,8 +75,8 @@ struct ProceduralRagdollCatView: View {
 
     private var ears: some View {
         ZStack {
-            EarShape().fill(seal).frame(width: 44, height: 54).rotationEffect(.degrees(-20)).offset(x: -6, y: -116)
-            EarShape().fill(seal).frame(width: 44, height: 54).rotationEffect(.degrees(20)).offset(x: 86, y: -116)
+            EarShape().fill(seal).frame(width: 44, height: hovering ? 60 : 54).rotationEffect(.degrees(-20)).offset(x: -6, y: -116)
+            EarShape().fill(seal).frame(width: 44, height: hovering ? 60 : 54).rotationEffect(.degrees(20)).offset(x: 86, y: -116)
         }
     }
 
@@ -96,8 +99,8 @@ struct ProceduralRagdollCatView: View {
     private var eye: some View {
         Circle()
             .fill(eyeBlue)
-            .frame(width: 24, height: 24)
-            .overlay(Circle().fill(Color.black).frame(width: 10, height: 10))
+            .frame(width: hovering ? 27 : 24, height: hovering ? 27 : 24)
+            .overlay(Circle().fill(Color.black).frame(width: 10, height: 10).offset(x: hovering ? 2 : 0, y: tapping ? -1 : 0))
             .overlay(Circle().fill(Color.white).frame(width: 5, height: 5).offset(x: -5, y: -5))
     }
 
@@ -114,6 +117,14 @@ struct ProceduralRagdollCatView: View {
             Capsule().fill(Color.white.opacity(0.85)).frame(width: 56, height: 2).rotationEffect(.degrees(8)).offset(x: -6, y: -15)
             Capsule().fill(Color.white.opacity(0.85)).frame(width: 56, height: 2).rotationEffect(.degrees(10)).offset(x: 92, y: -24)
             Capsule().fill(Color.white.opacity(0.85)).frame(width: 56, height: 2).rotationEffect(.degrees(-8)).offset(x: 92, y: -15)
+        }
+    }
+
+    private var tapSparkles: some View {
+        ZStack {
+            Circle().fill(Color.yellow.opacity(0.85)).frame(width: 8, height: 8).offset(x: -38, y: -120)
+            Circle().fill(Color.yellow.opacity(0.65)).frame(width: 6, height: 6).offset(x: 118, y: -102)
+            Circle().fill(Color.yellow.opacity(0.75)).frame(width: 5, height: 5).offset(x: 102, y: -28)
         }
     }
 }
