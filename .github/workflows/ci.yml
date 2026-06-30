@@ -1,0 +1,16 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  swift-build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate manifest shape
+        run: python3 pipeline/scripts/validate-pet-manifest.py templates/macos-desktop-pet/Resources/pets/default/pet.json || true
+      - name: Build template
+        working-directory: templates/macos-desktop-pet
+        run: swift build
