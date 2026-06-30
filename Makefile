@@ -7,7 +7,7 @@ help:
 	@echo "make validate | build | run | package"
 
 validate:
-	python3 pipeline/scripts/validate_pet_manifest.py $(PET_MANIFEST)
+	python3 pipeline/scripts/validate-pet-manifest.py $(PET_MANIFEST)
 
 build: validate
 	cd $(TEMPLATE_DIR) && swift build
