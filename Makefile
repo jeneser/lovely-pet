@@ -13,4 +13,4 @@ run: validate
 	cd $(TEMPLATE_DIR) && swift run LovelyPetApp
 
 package: validate
-	cd $(TEMPLATE_DIR) && ./scripts/package-app.sh
+	cd $(TEMPLATE_DIR) && sh scripts/package-app.sh
