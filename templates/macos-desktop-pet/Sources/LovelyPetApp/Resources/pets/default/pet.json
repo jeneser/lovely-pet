@@ -1,6 +1,13 @@
 {
   "id": "default",
-  "name": "Lovely Cat",
+  "name": "Lovely Ragdoll",
+  "renderer": { "type": "proceduralRagdoll" },
+  "window": { "width": 320, "height": 340 },
+  "behavior": {
+    "hoverState": "hover",
+    "tapState": "tap",
+    "sleepState": "sleep"
+  },
   "scale": 1.0,
   "anchor": "bottom-right",
   "defaultState": "idle",
@@ -20,6 +27,11 @@
       "loop": false,
       "frames": [],
       "nextState": "idle"
+    },
+    "sleep": {
+      "fps": 8,
+      "loop": true,
+      "frames": []
     }
   }
 }
