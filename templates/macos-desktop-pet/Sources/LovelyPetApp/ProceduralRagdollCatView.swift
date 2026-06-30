@@ -57,7 +57,7 @@ struct ProceduralRagdollCatView: View {
         Capsule()
             .fill(seal)
             .frame(width: 120, height: 42)
-            .rotationEffect(.degrees(Double(-24 + wag)))
+            .rotationEffect(.degrees(-24 + Double(wag)))
             .offset(x: -82, y: 72)
             .shadow(radius: 3, x: 0, y: 2)
     }
@@ -125,7 +125,7 @@ struct ProceduralRagdollCatView: View {
                 Circle()
                     .fill(eyeBlue)
                     .frame(width: interaction.hovering ? 27 : 24, height: interaction.hovering ? 27 : 24)
-                    .overlay(Circle().fill(Color.black).frame(width: 10, height: 10).offset(x: interaction.gazeX * 4, y: interaction.gazeY * 3))
+                    .overlay(Circle().fill(Color.black).frame(width: 10, height: 10).offset(x: CGFloat(interaction.gazeX * 4), y: CGFloat(interaction.gazeY * 3)))
                     .overlay(Circle().fill(Color.white).frame(width: 5, height: 5).offset(x: -5, y: -5))
             }
         }
