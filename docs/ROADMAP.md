@@ -11,11 +11,20 @@
 
 ## 0.2 Interaction depth
 
+Done in current iteration:
+
 - Eye tracking toward cursor.
 - Double-click special reaction.
 - Idle timeout to sleep.
-- Persist scale and position.
+- Affection counter.
+- Breathing, blinking, tail motion, hearts, sparkles, and message bubble.
+
+Remaining:
+
+- Persist scale, position, and affection.
 - Transparent-area hit testing.
+- Drag-specific reaction.
+- Petting zones.
 
 ## 0.3 Asset-backed customer builds
 
