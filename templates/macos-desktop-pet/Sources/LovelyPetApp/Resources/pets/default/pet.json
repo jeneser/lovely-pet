@@ -1,0 +1,25 @@
+{
+  "id": "default",
+  "name": "Lovely Cat",
+  "scale": 1.0,
+  "anchor": "bottom-right",
+  "defaultState": "idle",
+  "states": {
+    "idle": {
+      "fps": 12,
+      "loop": true,
+      "frames": []
+    },
+    "hover": {
+      "fps": 16,
+      "loop": true,
+      "frames": []
+    },
+    "tap": {
+      "fps": 18,
+      "loop": false,
+      "frames": [],
+      "nextState": "idle"
+    }
+  }
+}
