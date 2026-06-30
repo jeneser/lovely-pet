@@ -16,6 +16,8 @@ final class PetInteractionModel: ObservableObject {
 
     private let affectionKey = "lovelyPet.demo.affection"
     private var lastInteractionAt = Date()
+    private var lastPointerLocation: CGPoint?
+    private var lastPointerSize: CGSize?
 
     init() {
         affection = UserDefaults.standard.integer(forKey: affectionKey)
@@ -40,6 +42,8 @@ final class PetInteractionModel: ObservableObject {
 
     func updatePointer(location: CGPoint, size: CGSize) {
         guard size.width > 0, size.height > 0 else { return }
+        lastPointerLocation = location
+        lastPointerSize = size
         let normalizedX = Double((location.x / size.width - 0.5) * 2)
         let normalizedY = Double((0.5 - location.y / size.height) * 2)
         gazeX = max(-1, min(1, normalizedX))
@@ -48,7 +52,11 @@ final class PetInteractionModel: ObservableObject {
     }
 
     func tap() {
-        react(zone: nil, affectionGain: 1, fallbackMessage: affection % 5 == 4 ? "喵～" : nil)
+        if let location = lastPointerLocation, let size = lastPointerSize {
+            tap(at: location, size: size)
+        } else {
+            react(zone: nil, affectionGain: 1, fallbackMessage: affection % 5 == 4 ? "喵～" : nil)
+        }
     }
 
     func tap(at location: CGPoint, size: CGSize) {
