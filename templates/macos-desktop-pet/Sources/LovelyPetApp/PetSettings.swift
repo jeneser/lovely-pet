@@ -1,14 +1,24 @@
 import Foundation
+import Combine
 
 final class PetSettings: ObservableObject {
-    @Published var scale: Double
+    let manifest: PetManifest
+
+    @Published var scale: Double {
+        didSet { UserDefaults.standard.set(scale, forKey: scaleKey) }
+    }
     @Published var isAlwaysOnTop: Bool = true
     @Published var isClickThroughOutsidePet: Bool = false
 
-    let manifest: PetManifest
+    private let scaleKey = "lovelyPet.demo.scale"
 
     init(manifest: PetManifest) {
         self.manifest = manifest
-        self.scale = manifest.scale
+        let savedScale = UserDefaults.standard.double(forKey: scaleKey)
+        self.scale = savedScale > 0 ? savedScale : manifest.scale
+    }
+
+    func resetScale() {
+        scale = manifest.scale
     }
 }
