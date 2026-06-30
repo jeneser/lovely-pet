@@ -33,8 +33,9 @@ final class LovelyPetApplication: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openSettings() {
-        let view = SettingsView()
-        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 360, height: 260), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        guard let settings = windowController?.settings else { return }
+        let view = SettingsView(settings: settings)
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 420, height: 320), styleMask: [.titled, .closable], backing: .buffered, defer: false)
         window.center()
         window.title = "Lovely Pet Settings"
         window.contentView = NSHostingView(rootView: view)
