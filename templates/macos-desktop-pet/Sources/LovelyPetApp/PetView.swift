@@ -1,26 +1,45 @@
 import SwiftUI
+import Combine
 
 struct PetView: View {
     @ObservedObject var player: FrameAnimationPlayer
     @ObservedObject var settings: PetSettings
-    @State private var hovering = false
-    @State private var tapping = false
+    @StateObject private var interaction = PetInteractionModel()
+
+    private let idleTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        ProceduralRagdollCatView(hovering: hovering, tapping: tapping)
-            .frame(width: 260 * settings.scale, height: 280 * settings.scale)
-            .contentShape(Rectangle())
-            .background(Color.clear)
-            .onHover { value in
-                hovering = value
-                player.handleHover(value)
-            }
-            .onTapGesture {
-                tapping = true
-                player.handleTap()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                    tapping = false
+        GeometryReader { proxy in
+            ProceduralRagdollCatView(interaction: interaction)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .contentShape(Rectangle())
+                .background(Color.clear)
+                .onHover { value in
+                    interaction.setHovering(value)
+                    player.handleHover(value)
                 }
-            }
+                .onContinuousHover { phase in
+                    switch phase {
+                    case .active(let location):
+                        interaction.updatePointer(location: location, size: proxy.size)
+                    case .ended:
+                        interaction.setHovering(false)
+                        player.handleHover(false)
+                    }
+                }
+                .onTapGesture(count: 2) {
+                    interaction.doubleTap()
+                    player.handleTap()
+                }
+                .onTapGesture {
+                    interaction.tap()
+                    player.handleTap()
+                }
+        }
+        .frame(width: 300 * settings.scale, height: 320 * settings.scale)
+        .background(Color.clear)
+        .onReceive(idleTimer) { _ in
+            interaction.maybeSleep()
+        }
     }
 }
