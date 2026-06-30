@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 final class PetWindowController: NSWindowController {
-    private let settings: PetSettings
+    let settings: PetSettings
     private let player: FrameAnimationPlayer
 
     init(settings: PetSettings, player: FrameAnimationPlayer) {
