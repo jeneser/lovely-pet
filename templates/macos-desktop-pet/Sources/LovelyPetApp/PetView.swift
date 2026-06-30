@@ -31,27 +31,10 @@ struct PetView: View {
                     interaction.doubleTap()
                     player.handleTap()
                 }
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { value in
-                            interaction.updatePointer(location: value.location, size: proxy.size)
-                            let dx = value.location.x - value.startLocation.x
-                            let dy = value.location.y - value.startLocation.y
-                            if abs(dx) + abs(dy) > 8 {
-                                interaction.startDragging()
-                            }
-                        }
-                        .onEnded { value in
-                            let dx = value.location.x - value.startLocation.x
-                            let dy = value.location.y - value.startLocation.y
-                            if abs(dx) + abs(dy) > 8 {
-                                interaction.endDragging()
-                            } else {
-                                interaction.tap(at: value.location, size: proxy.size)
-                                player.handleTap()
-                            }
-                        }
-                )
+                .onTapGesture {
+                    interaction.tap()
+                    player.handleTap()
+                }
         }
         .frame(width: 300 * settings.scale, height: 320 * settings.scale)
         .background(Color.clear)
