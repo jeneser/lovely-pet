@@ -16,8 +16,14 @@ make package
 - App launches without terminal errors.
 - Pet window is transparent and floating.
 - Pet can be dragged to a new position.
-- Hover makes the pet visibly react.
+- Hover makes the pet lift, look alive, and track the cursor.
+- Clicking the head, tail, paws, and body shows different messages or visual feedback.
 - Tap makes the pet visibly react and then return to idle.
+- Double tap shows stronger affection feedback.
+- Long press triggers the hold/startled reaction.
+- Affection count increases and persists after restarting the app.
+- Scale can be changed from Settings and persists after restart.
+- After a quiet period, the pet can enter sleepy visual state.
 - Menu bar item remains available.
 - Quit works from the menu.
 - Packaged app opens from `dist/`.
