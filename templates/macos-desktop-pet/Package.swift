@@ -11,7 +11,8 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "LovelyPetApp",
-            resources: [.copy("Resources")]
+            resources: [.copy("Resources")],
+            swiftSettings: [.unsafeFlags(["-parse-as-library"])]
         )
     ]
 )
