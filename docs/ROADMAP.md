@@ -18,13 +18,15 @@ Done:
 - Idle timeout to sleep.
 - Affection counter.
 - Persistent affection through UserDefaults.
+- Persistent scale setting through UserDefaults.
+- Settings panel with scale control.
 - Petting zones for head, tail, paws, and body.
 - Long-press hold reaction.
 - Breathing, blinking, tail motion, hearts, sparkles, message bubble, and zone feedback.
 
 Remaining:
 
-- Persist scale and window position.
+- Persist window position.
 - Transparent-area hit testing.
 - True drag-specific reaction while moving the window.
 - Treat mini-game.
