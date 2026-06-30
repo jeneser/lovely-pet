@@ -14,7 +14,8 @@ struct ProceduralRagdollCatView: View {
         TimelineView(.animation) { timeline in
             let phase = timeline.date.timeIntervalSinceReferenceDate
             let breath = CGFloat(sin(phase * 2.1))
-            let tailWag = CGFloat(sin(phase * 3.2)) * (interaction.hovering ? 8 : 3)
+            let baseTail = CGFloat(sin(phase * 3.2)) * (interaction.hovering ? 8 : 3)
+            let tailWag = baseTail + (interaction.dragging ? 10 : 0)
             let blink = interaction.asleep ? true : Int(phase * 2.0) % 9 == 0
 
             ZStack {
@@ -30,24 +31,27 @@ struct ProceduralRagdollCatView: View {
                 nose
                 whiskers
                 if interaction.tapping { tapSparkles }
+                if interaction.dragging { dragFeedback }
                 if interaction.celebrating { hearts }
+                if let zone = interaction.touchedZone { touchFeedback(zone) }
                 if let message = interaction.message { messageBubble(message) }
                 affectionBadge
             }
             .frame(width: 280, height: 310)
-            .scaleEffect(interaction.tapping ? 1.10 : (interaction.hovering ? 1.06 : 1.0))
-            .offset(y: interaction.tapping ? -20 : (interaction.hovering ? -8 : -breath * 2))
-            .rotationEffect(.degrees(interaction.tapping ? -6 : (interaction.hovering ? 3 : 0)))
+            .scaleEffect(interaction.dragging ? 0.96 : (interaction.tapping ? 1.10 : (interaction.hovering ? 1.06 : 1.0)))
+            .offset(y: interaction.dragging ? -12 : (interaction.tapping ? -20 : (interaction.hovering ? -8 : -breath * 2)))
+            .rotationEffect(.degrees(interaction.dragging ? Double(interaction.gazeX * 8) : (interaction.tapping ? -6 : (interaction.hovering ? 3 : 0))))
             .animation(.spring(response: 0.28, dampingFraction: 0.72), value: interaction.hovering)
             .animation(.spring(response: 0.22, dampingFraction: 0.48), value: interaction.tapping)
             .animation(.spring(response: 0.36, dampingFraction: 0.55), value: interaction.celebrating)
+            .animation(.spring(response: 0.18, dampingFraction: 0.45), value: interaction.dragging)
             .accessibilityLabel("Lovely Ragdoll desktop pet")
         }
     }
 
     private func groundShadow(breath: CGFloat) -> some View {
         Ellipse()
-            .fill(Color.black.opacity(0.14))
+            .fill(Color.black.opacity(interaction.dragging ? 0.08 : 0.14))
             .frame(width: 158 + breath * 2, height: 24)
             .offset(x: -4, y: 150)
             .blur(radius: 4)
@@ -80,8 +84,8 @@ struct ProceduralRagdollCatView: View {
 
     private func paws(breath: CGFloat) -> some View {
         HStack(spacing: 18) {
-            Capsule().fill(furWhite).frame(width: 31, height: interaction.tapping ? 70 : 82)
-            Capsule().fill(furWhite).frame(width: 31, height: interaction.hovering ? 74 : 82)
+            Capsule().fill(furWhite).frame(width: 31, height: interaction.dragging ? 66 : (interaction.tapping ? 70 : 82))
+            Capsule().fill(furWhite).frame(width: 31, height: interaction.dragging ? 66 : (interaction.hovering ? 74 : 82))
         }
         .offset(x: 34, y: 94 + breath)
     }
@@ -96,8 +100,8 @@ struct ProceduralRagdollCatView: View {
 
     private var ears: some View {
         ZStack {
-            EarShape().fill(seal).frame(width: 45, height: interaction.hovering ? 62 : 55).rotationEffect(.degrees(-20)).offset(x: -8, y: -120)
-            EarShape().fill(seal).frame(width: 45, height: interaction.hovering ? 62 : 55).rotationEffect(.degrees(20)).offset(x: 88, y: -120)
+            EarShape().fill(seal).frame(width: 45, height: interaction.hovering ? 62 : 55).rotationEffect(.degrees(interaction.dragging ? -30 : -20)).offset(x: -8, y: -120)
+            EarShape().fill(seal).frame(width: 45, height: interaction.hovering ? 62 : 55).rotationEffect(.degrees(interaction.dragging ? 30 : 20)).offset(x: 88, y: -120)
         }
     }
 
@@ -152,6 +156,26 @@ struct ProceduralRagdollCatView: View {
             Circle().fill(Color.yellow.opacity(0.85)).frame(width: 8, height: 8).offset(x: -38, y: -126)
             Circle().fill(Color.yellow.opacity(0.65)).frame(width: 6, height: 6).offset(x: 124, y: -106)
             Circle().fill(Color.yellow.opacity(0.75)).frame(width: 5, height: 5).offset(x: 108, y: -30)
+        }
+    }
+
+    private var dragFeedback: some View {
+        ZStack {
+            Text("!").font(.system(size: 28, weight: .bold)).foregroundStyle(.orange).offset(x: 104, y: -136)
+            Circle().fill(Color.orange.opacity(0.75)).frame(width: 5, height: 5).offset(x: -48, y: -122)
+        }
+    }
+
+    @ViewBuilder private func touchFeedback(_ zone: String) -> some View {
+        switch zone {
+        case "head":
+            Text("♡").font(.system(size: 24, weight: .bold)).foregroundStyle(.pink).offset(x: 42, y: -136)
+        case "tail":
+            Text("!").font(.system(size: 24, weight: .bold)).foregroundStyle(.orange).offset(x: -120, y: 28)
+        case "paw":
+            Text("♡").font(.system(size: 18, weight: .bold)).foregroundStyle(.pink).offset(x: 48, y: 130)
+        default:
+            Text("♡").font(.system(size: 18, weight: .bold)).foregroundStyle(.pink.opacity(0.75)).offset(x: -12, y: 18)
         }
     }
 
