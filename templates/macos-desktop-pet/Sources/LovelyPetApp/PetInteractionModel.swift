@@ -1,5 +1,6 @@
 import Foundation
 import CoreGraphics
+import Combine
 
 final class PetInteractionModel: ObservableObject {
     @Published var hovering = false
