@@ -19,14 +19,15 @@ Done:
 - Affection counter.
 - Persistent affection through UserDefaults.
 - Persistent scale setting through UserDefaults.
+- Persistent window position through UserDefaults.
 - Settings panel with scale control.
+- Menu action to reset pet position.
 - Petting zones for head, tail, paws, and body.
 - Long-press hold reaction.
 - Breathing, blinking, tail motion, hearts, sparkles, message bubble, and zone feedback.
 
 Remaining:
 
-- Persist window position.
 - Transparent-area hit testing.
 - True drag-specific reaction while moving the window.
 - Treat mini-game.
