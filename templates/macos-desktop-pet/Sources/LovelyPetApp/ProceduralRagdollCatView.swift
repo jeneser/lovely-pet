@@ -2,6 +2,7 @@ import SwiftUI
 import Foundation
 
 struct ProceduralRagdollCatView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var interaction: PetInteractionModel
 
     private let furWhite = Color(red: 1.00, green: 0.98, blue: 0.92)
@@ -11,10 +12,10 @@ struct ProceduralRagdollCatView: View {
     private let nosePink = Color(red: 0.95, green: 0.55, blue: 0.62)
 
     var body: some View {
-        TimelineView(.animation) { timeline in
+        TimelineView(.periodic(from: .now, by: reduceMotion ? 1.0 : 1.0 / 24.0)) { timeline in
             let phase = timeline.date.timeIntervalSinceReferenceDate
-            let breath = CGFloat(sin(phase * 2.1))
-            let baseTail = CGFloat(sin(phase * 3.2)) * (interaction.hovering ? 8 : 3)
+            let breath = reduceMotion || interaction.asleep ? 0 : CGFloat(sin(phase * 2.1))
+            let baseTail = reduceMotion || interaction.asleep ? 0 : CGFloat(sin(phase * 3.2)) * (interaction.hovering ? 8 : 3)
             let tailWag = baseTail + (interaction.dragging ? 10 : 0)
             let blink = interaction.asleep ? true : Int(phase * 2.0) % 9 == 0
 
