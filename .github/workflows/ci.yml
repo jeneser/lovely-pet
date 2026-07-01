@@ -3,6 +3,7 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   macos-template:
@@ -15,3 +16,9 @@ jobs:
         run: make build
       - name: Package app bundle
         run: make package
+      - name: Upload packaged app
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lovely-Pet-Demo-macOS
+          path: templates/macos-desktop-pet/dist/Lovely-Pet-Demo.zip
+          if-no-files-found: error
