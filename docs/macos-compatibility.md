@@ -12,6 +12,13 @@ Lovely Pet targets **macOS 12 Monterey and newer**. For this PR, compatibility c
 
 GitHub-hosted macOS runners currently cover `macos-14`, `macos-15`, and `macos-26`. macOS 12 and macOS 13 are still part of the support contract, but they require manual hardware/VM validation or self-hosted runners because they are not available as standard GitHub-hosted runner labels.
 
+For the manual `macOS legacy runtime validation` workflow, register self-hosted runners with these labels:
+
+| Target | Required self-hosted labels |
+|---|---|
+| macOS 12 Monterey | `self-hosted`, `macOS`, `macos-12` |
+| macOS 13 Ventura | `self-hosted`, `macOS`, `macos-13` |
+
 ## Validation layers
 
 ### 1. Hosted CI compile/package validation
