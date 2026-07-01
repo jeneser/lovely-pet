@@ -43,7 +43,7 @@ This confirms the app can be validated, source-audited, compiled, and packaged a
 `make compat` runs `pipeline/scripts/validate-macos-compatibility.py`. The audit fails if any of the following compatibility guarantees are broken:
 
 - `Package.swift` must declare `platforms: [.macOS(.v12)]`.
-- The support comment must mention macOS 26, 15, 14, 13, and 12.
+- The support comment must mention macOS 26, macOS 15, macOS 14, macOS 13, and macOS 12.
 - `onContinuousHover` must remain behind `if #available(macOS 13, *)`, with a macOS 12 no-op fallback.
 - `NSApp.activate()` must remain behind `if #available(macOS 14, *)`, with `activate(ignoringOtherApps:)` retained for macOS 12 and 13.
 - `onChange` must use the macOS 12-compatible `.onChange(of:perform:)` overload.
@@ -61,7 +61,7 @@ make validate
 make compat
 make build
 make package
-open templates/macos-desktop-pet/dist/LovelyPet.app
+open "templates/macos-desktop-pet/dist/Lovely Pet.app"
 ```
 
 After launch, verify:
