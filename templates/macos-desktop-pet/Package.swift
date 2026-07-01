@@ -9,9 +9,6 @@ let package = Package(
         .executable(name: "LovelyPetApp", targets: ["LovelyPetApp"])
     ],
     targets: [
-        .executableTarget(
-            name: "LovelyPetApp",
-            swiftSettings: [.unsafeFlags(["-parse-as-library"])]
-        )
+        .executableTarget(name: "LovelyPetApp")
     ]
 )
