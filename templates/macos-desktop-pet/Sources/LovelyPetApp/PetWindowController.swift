@@ -6,7 +6,6 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
     private let player: FrameAnimationPlayer
     private let xKey = "lovelyPet.demo.window.x"
     private let yKey = "lovelyPet.demo.window.y"
-    private let defaultSize = NSSize(width: 340, height: 360)
 
     init(settings: PetSettings, player: FrameAnimationPlayer) {
         self.settings = settings
@@ -17,9 +16,10 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
         hostingView.wantsLayer = true
         hostingView.layer?.backgroundColor = NSColor.clear.cgColor
 
-        let origin = Self.savedOrigin(width: defaultSize.width, height: defaultSize.height)
+        let size = NSSize(width: 340, height: 360)
+        let origin = Self.savedOrigin(width: size.width, height: size.height)
         let window = NSPanel(
-            contentRect: NSRect(origin: origin, size: defaultSize),
+            contentRect: NSRect(origin: origin, size: size),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -61,9 +61,7 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
         let defaults = UserDefaults.standard
         let x = defaults.double(forKey: "lovelyPet.demo.window.x")
         let y = defaults.double(forKey: "lovelyPet.demo.window.y")
-        if x != 0 || y != 0 {
-            return NSPoint(x: x, y: y)
-        }
+        if x != 0 || y != 0 { return NSPoint(x: x, y: y) }
         return defaultOrigin(width: width, height: height)
     }
 
