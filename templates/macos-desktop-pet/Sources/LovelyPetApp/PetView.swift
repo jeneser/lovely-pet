@@ -18,15 +18,8 @@ struct PetView: View {
                     interaction.setHovering(value)
                     player.handleHover(value)
                 }
-                .onContinuousHover { phase in
-                    switch phase {
-                    case .active(let location):
-                        interaction.updatePointer(location: location, size: proxy.size)
-                    case .ended:
-                        interaction.setHovering(false)
-                        player.handleHover(false)
-                    }
-                }
+                // onContinuousHover is macOS 13+; the modifier guards internally.
+                .modifier(ContinuousHoverModifier(interaction: interaction, player: player, proxy: proxy))
                 .onTapGesture(count: 2) {
                     interaction.doubleTap()
                     player.handleTap()
@@ -48,8 +41,36 @@ struct PetView: View {
             interaction.maybeSleep()
             player.handleSleep(interaction.asleep)
         }
-        .onChange(of: interaction.asleep) { sleeping in
+        // Use the macOS 12-compatible onChange(of:perform:) overload.
+        .onChange(of: interaction.asleep, perform: { sleeping in
             player.handleSleep(sleeping)
+        })
+    }
+}
+
+// MARK: - Continuous Hover Compat
+
+/// Applies continuous hover tracking on macOS 13+ and is a no-op on macOS 12.
+private struct ContinuousHoverModifier: ViewModifier {
+    let interaction: PetInteractionModel
+    let player: FrameAnimationPlayer
+    let proxy: GeometryProxy
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(macOS 13, *) {
+            content.onContinuousHover { phase in
+                switch phase {
+                case .active(let location):
+                    interaction.updatePointer(location: location, size: proxy.size)
+                case .ended:
+                    interaction.setHovering(false)
+                    player.handleHover(false)
+                }
+            }
+        } else {
+            // macOS 12: gaze tracking unavailable, graceful degradation.
+            content
         }
     }
 }

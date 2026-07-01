@@ -4,7 +4,8 @@ import PackageDescription
 
 let package = Package(
     name: "LovelyPetApp",
-    platforms: [.macOS(.v13)],
+    // Support macOS 12+; coverage tracks macOS 26, macOS 15, macOS 14, macOS 13, and macOS 12.
+    platforms: [.macOS(.v12)],
     products: [
         .executable(name: "LovelyPetApp", targets: ["LovelyPetApp"])
     ],

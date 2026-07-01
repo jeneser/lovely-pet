@@ -1,0 +1,88 @@
+name: macOS legacy runtime validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_runtime_smoke:
+        description: "Launch the packaged app for a basic runtime smoke check"
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  legacy-runtime:
+    name: macOS ${{ matrix.major }} runtime validation
+    runs-on: ${{ fromJSON(matrix.runs_on) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - major: 12
+            name: Monterey
+            runs_on: '["self-hosted", "macOS", "macos-12"]'
+          - major: 13
+            name: Ventura
+            runs_on: '["self-hosted", "macOS", "macos-13"]'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify host macOS major version
+        run: |
+          host_major="$(sw_vers -productVersion | cut -d. -f1)"
+          expected_major="${{ matrix.major }}"
+          echo "Expected macOS major: ${expected_major} (${{ matrix.name }})"
+          sw_vers
+          if [ "${host_major}" != "${expected_major}" ]; then
+            echo "This self-hosted runner is macOS ${host_major}, expected ${expected_major}." >&2
+            exit 1
+          fi
+
+      - name: Record toolchain environment
+        run: |
+          mkdir -p templates/macos-desktop-pet/dist/compat
+          {
+            echo "# Runtime validation environment for macOS ${{ matrix.major }} ${{ matrix.name }}"
+            echo
+            echo '```text'
+            sw_vers
+            xcodebuild -version
+            swift --version
+            echo '```'
+          } | tee templates/macos-desktop-pet/dist/compat/runtime-macos-${{ matrix.major }}.md
+
+      - name: Validate manifest and compatibility contract
+        run: |
+          make validate
+          make compat
+
+      - name: Build and package Swift template
+        run: |
+          make build
+          make package
+
+      - name: Basic runtime launch smoke check
+        if: ${{ inputs.run_runtime_smoke }}
+        run: |
+          app_path="templates/macos-desktop-pet/dist/Lovely Pet.app"
+          if [ ! -d "${app_path}" ]; then
+            echo "Packaged app not found: ${app_path}" >&2
+            find templates/macos-desktop-pet/dist -maxdepth 2 -print
+            exit 1
+          fi
+          open -n "${app_path}"
+          sleep 8
+          if ! pgrep -f "LovelyPetApp" >/dev/null; then
+            echo "LovelyPetApp process was not detected after launch." >&2
+            exit 1
+          fi
+          pkill -f "LovelyPetApp" || true
+
+      - name: Upload legacy runtime evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS-legacy-runtime-evidence-${{ matrix.major }}
+          path: |
+            templates/macos-desktop-pet/dist/macos-compatibility-report.md
+            templates/macos-desktop-pet/dist/compat/runtime-macos-${{ matrix.major }}.md
+            templates/macos-desktop-pet/dist/Lovely-Pet-macOS.zip
+          if-no-files-found: error

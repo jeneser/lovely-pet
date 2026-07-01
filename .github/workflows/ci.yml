@@ -7,18 +7,52 @@ on:
 
 jobs:
   macos-template:
-    runs-on: macos-14
+    name: macos-template (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-26, macos-15, macos-14]
     steps:
       - uses: actions/checkout@v4
+
+      - name: Record runner environment
+        run: |
+          mkdir -p templates/macos-desktop-pet/dist/compat
+          {
+            echo "# Runner environment for ${{ matrix.os }}"
+            echo
+            echo '```text'
+            sw_vers
+            xcodebuild -version
+            swift --version
+            echo '```'
+          } | tee templates/macos-desktop-pet/dist/compat/runner-${{ matrix.os }}.md
+
       - name: Validate manifest
         run: make validate
+
+      - name: Validate macOS compatibility contract
+        run: make compat
+
       - name: Build Swift template
         run: make build
+
       - name: Package app bundle
         run: make package
+
+      - name: Upload compatibility evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS-compatibility-evidence-${{ matrix.os }}
+          path: |
+            templates/macos-desktop-pet/dist/macos-compatibility-report.md
+            templates/macos-desktop-pet/dist/compat/runner-${{ matrix.os }}.md
+          if-no-files-found: error
+
       - name: Upload packaged app
         uses: actions/upload-artifact@v4
         with:
-          name: Lovely-Pet-macOS
+          name: Lovely-Pet-macOS-${{ matrix.os }}
           path: templates/macos-desktop-pet/dist/Lovely-Pet-macOS.zip
           if-no-files-found: error
