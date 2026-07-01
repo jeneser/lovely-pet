@@ -10,7 +10,7 @@ final class PetSettings: ObservableObject {
     @Published var isAlwaysOnTop: Bool = true
     @Published var isClickThroughOutsidePet: Bool = false
 
-    private let scaleKey = "lovelyPet.demo.scale"
+    private let scaleKey = "lovelyPet.app.scale"
 
     init(manifest: PetManifest) {
         self.manifest = manifest
