@@ -5,9 +5,11 @@
   <key>CFBundleExecutable</key>
   <string>LovelyPetApp</string>
   <key>CFBundleIdentifier</key>
-  <string>com.lovelypet.demo</string>
+  <string>app.lovelypet.macos</string>
   <key>CFBundleName</key>
-  <string>Lovely Pet Demo</string>
+  <string>Lovely Pet</string>
+  <key>CFBundleDisplayName</key>
+  <string>Lovely Pet</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
