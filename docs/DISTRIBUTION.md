@@ -1,6 +1,6 @@
 # Distribution
 
-This document covers neutral distribution notes for the macOS app bundle.
+This document covers distribution notes for the macOS app bundle.
 
 ## Local package
 
@@ -21,7 +21,18 @@ The CI workflow uploads `Lovely-Pet-macOS.zip` as an artifact named `Lovely-Pet-
 
 ## Release workflow
 
-The release workflow can be run manually from GitHub Actions. It packages the app and attaches the zip to a prerelease.
+The release workflow can be run manually from GitHub Actions or triggered by changing `.github/release-version.txt`. It packages the app and attaches the zip to a prerelease.
+
+## GitHub Packages
+
+The release workflow also publishes the zip as an OCI artifact in GitHub Packages using GitHub Container Registry:
+
+```text
+ghcr.io/<owner>/lovely-pet-macos:<tag>
+ghcr.io/<owner>/lovely-pet-macos:latest
+```
+
+The primary user-facing download remains the GitHub Release asset. The package upload is useful for automated retrieval and version tracking.
 
 ## macOS security notes
 
