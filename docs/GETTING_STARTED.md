@@ -1,6 +1,6 @@
 # Getting Started
 
-## 1. Run the demo
+## 1. Run the sample pet
 
 ```bash
 make validate
@@ -11,17 +11,17 @@ make run
 
 ```bash
 make package
-open "templates/macos-desktop-pet/dist/Lovely Pet Demo.app"
+open "templates/macos-desktop-pet/dist/Lovely Pet.app"
 ```
 
-The demo is a native macOS desktop pet. It uses a procedural ragdoll cat renderer, so it runs immediately without external image assets.
+The sample is a native macOS desktop pet. It uses a procedural ragdoll cat renderer, so it runs immediately without external image assets.
 
 ## 3. Customize the pet
 
 Edit:
 
 ```text
-templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/ragdoll-demo/pet.json
+templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json
 ```
 
-Change the window size, state durations, and keyframes. Run `make validate` after every edit.
+Change the name, scale, animation states, and resource references. Run `make validate` after every edit.
