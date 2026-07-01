@@ -34,7 +34,7 @@ Lovely-Pet-macOS
 - 鼠标追踪、分区触摸、亲密度记忆、睡眠状态、缩放记忆和窗口位置记忆
 - manifest 配置和校验脚本
 - app 打包流程和 GitHub Actions 构建产物上传
-- 设置、交互设计、素材准备、测试和工程审查文档
+- 设置、交互设计、运行安全、素材准备、测试和工程审查文档
 
 ## 仓库结构
 
@@ -49,6 +49,7 @@ examples/ragdoll-demo/         布偶猫角色 profile 和说明
 
 - `docs/GETTING_STARTED.md`
 - `docs/INTERACTION_DESIGN.md`
+- `docs/RUNTIME_SAFETY.md`
 - `docs/ENGINEERING_REVIEW.md`
 - `docs/ASSET_PIPELINE.md`
 - `docs/BUILD_PIPELINE.md`
@@ -58,4 +59,4 @@ examples/ragdoll-demo/         布偶猫角色 profile 和说明
 
 ## 当前重点
 
-当前重点是提升桌宠的自然感和陪伴感：更自然的 hover、眼神跟随、分区触摸反馈、轻量亲密度记忆、睡眠节奏和稳定的 macOS 打包体验。
+当前重点是提升桌宠的自然感和陪伴感：更自然的 hover、眼神跟随、分区触摸反馈、轻量亲密度记忆、睡眠节奏、可预测的本地状态和稳定的 macOS 打包体验。
