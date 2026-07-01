@@ -34,7 +34,7 @@ Lovely-Pet-macOS
 - Cursor tracking, petting zones, affection memory, sleepy state, persistent scale, and persistent window position
 - Manifest-based configuration and validation script
 - App packaging workflow and GitHub Actions artifact upload
-- Documentation for setup, interaction design, asset preparation, testing, and engineering review
+- Documentation for setup, interaction design, runtime safety, asset preparation, testing, and engineering review
 
 ## Repository layout
 
@@ -49,6 +49,7 @@ examples/ragdoll-demo/         Ragdoll character profile and notes
 
 - `docs/GETTING_STARTED.md`
 - `docs/INTERACTION_DESIGN.md`
+- `docs/RUNTIME_SAFETY.md`
 - `docs/ENGINEERING_REVIEW.md`
 - `docs/ASSET_PIPELINE.md`
 - `docs/BUILD_PIPELINE.md`
@@ -58,4 +59,4 @@ examples/ragdoll-demo/         Ragdoll character profile and notes
 
 ## Current focus
 
-The current focus is product feel: natural hover response, cursor-aware gaze, petting-zone feedback, simple affection memory, sleepy rhythm, and stable macOS packaging.
+The current focus is product feel: natural hover response, cursor-aware gaze, petting-zone feedback, simple affection memory, sleepy rhythm, predictable local state, and stable macOS packaging.
