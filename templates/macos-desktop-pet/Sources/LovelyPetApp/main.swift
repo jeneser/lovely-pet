@@ -25,11 +25,21 @@ final class LovelyPetApplication: NSObject, NSApplicationDelegate {
         item.button?.title = "🐾"
 
         let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "Show Pet", action: #selector(showPet), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Reset Position", action: #selector(resetPosition), keyEquivalent: "r"))
         menu.addItem(NSMenuItem(title: "Settings", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         item.menu = menu
         statusItem = item
+    }
+
+    @objc private func showPet() {
+        windowController?.showWindow(nil)
+    }
+
+    @objc private func resetPosition() {
+        windowController?.resetPosition()
     }
 
     @objc private func openSettings() {
