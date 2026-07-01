@@ -1,8 +1,13 @@
 {
   "id": "default",
   "name": "Lovely Ragdoll",
-  "renderer": { "type": "imageAssets" },
-  "window": { "width": 320, "height": 340 },
+  "renderer": {
+    "type": "imageAssets"
+  },
+  "window": {
+    "width": 320,
+    "height": 340
+  },
   "behavior": {
     "hoverState": "hover",
     "tapState": "tap",
@@ -16,33 +21,38 @@
       "fps": 2,
       "loop": true,
       "frames": [
-        "frames/idle.png.b64",
-        "frames/idle.png.b64"
+        "frames/idle/0001-stand.png",
+        "frames/idle/0002-blink.png",
+        "frames/idle/0001-stand.png",
+        "frames/idle/0003-tail-sway.png",
+        "frames/idle/0001-stand.png"
       ]
     },
     "hover": {
-      "fps": 2,
+      "fps": 5,
       "loop": true,
       "frames": [
-        "frames/hover.png.b64",
-        "frames/hover.png.b64"
+        "frames/hover/0001-notice.png",
+        "frames/hover/0002-paw-probe.png",
+        "frames/hover/0001-notice.png"
       ]
     },
     "tap": {
-      "fps": 8,
+      "fps": 7,
       "loop": false,
+      "nextState": "idle",
       "frames": [
-        "frames/tap.png.b64",
-        "frames/hover.png.b64"
-      ],
-      "nextState": "idle"
+        "frames/tap/0001-startle.png",
+        "frames/hover/0002-paw-probe.png",
+        "frames/hover/0001-notice.png",
+        "frames/idle/0001-stand.png"
+      ]
     },
     "sleep": {
       "fps": 1,
       "loop": true,
       "frames": [
-        "frames/sleep.png.b64",
-        "frames/sleep.png.b64"
+        "frames/sleep/0001-loaf.png"
       ]
     }
   }
