@@ -14,7 +14,7 @@ final class PetInteractionModel: ObservableObject {
     @Published var message: String? = nil
     @Published var touchedZone: String? = nil
 
-    private let affectionKey = "lovelyPet.demo.affection"
+    private let affectionKey = "lovelyPet.app.affection"
     private var lastInteractionAt = Date()
     private var lastPointerLocation: CGPoint?
     private var lastPointerSize: CGSize?
