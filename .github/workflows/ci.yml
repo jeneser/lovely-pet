@@ -19,6 +19,6 @@ jobs:
       - name: Upload packaged app
         uses: actions/upload-artifact@v4
         with:
-          name: Lovely-Pet-Demo-macOS
-          path: templates/macos-desktop-pet/dist/Lovely-Pet-Demo.zip
+          name: Lovely-Pet-macOS
+          path: templates/macos-desktop-pet/dist/Lovely-Pet-macOS.zip
           if-no-files-found: error
