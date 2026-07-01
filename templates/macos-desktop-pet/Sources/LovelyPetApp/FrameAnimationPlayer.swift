@@ -16,14 +16,22 @@ final class FrameAnimationPlayer: ObservableObject {
         play(state: manifest.defaultState)
     }
 
-    func play(state: String) {
-        guard manifest.states[state] != nil else { return }
+    deinit {
         timer?.invalidate()
+    }
+
+    func play(state: String) {
+        guard let stateConfig = manifest.states[state] else { return }
+        timer?.invalidate()
+        timer = nil
         stateName = state
         frameIndex = 0
         loadFrame()
 
-        let fps = manifest.states[state]?.fps ?? 12
+        guard !stateConfig.frames.isEmpty else { return }
+        if stateConfig.loop && stateConfig.frames.count <= 1 { return }
+
+        let fps = max(stateConfig.fps, 1)
         timer = Timer.scheduledTimer(withTimeInterval: 1.0 / Double(fps), repeats: true) { [weak self] _ in
             self?.advance()
         }
