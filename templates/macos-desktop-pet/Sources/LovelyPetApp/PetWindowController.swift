@@ -42,7 +42,18 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
     func resetPosition() {
         guard let window else { return }
         window.setFrameOrigin(Self.defaultOrigin(width: window.frame.width, height: window.frame.height))
+        window.orderFrontRegardless()
         savePosition()
+    }
+
+    func showPet() {
+        guard let window else { return }
+        let origin = Self.visibleOrigin(for: window.frame)
+        if origin != window.frame.origin {
+            window.setFrameOrigin(origin)
+            savePosition()
+        }
+        window.orderFrontRegardless()
     }
 
     func windowDidMove(_ notification: Notification) {
@@ -59,12 +70,23 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
         let defaults = UserDefaults.standard
         let x = defaults.double(forKey: LocalStorageKeys.windowX)
         let y = defaults.double(forKey: LocalStorageKeys.windowY)
-        if x != 0 || y != 0 { return NSPoint(x: x, y: y) }
+        if x != 0 || y != 0 {
+            let frame = NSRect(x: x, y: y, width: width, height: height)
+            return visibleOrigin(for: frame)
+        }
         return defaultOrigin(width: width, height: height)
     }
 
     private static func defaultOrigin(width: CGFloat, height: CGFloat) -> NSPoint {
         let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
         return NSPoint(x: screen.maxX - width - 80, y: screen.minY + 80)
+    }
+
+    private static func visibleOrigin(for frame: NSRect) -> NSPoint {
+        let visibleFrames = NSScreen.screens.map(\.visibleFrame)
+        if visibleFrames.contains(where: { $0.intersects(frame) }) {
+            return frame.origin
+        }
+        return defaultOrigin(width: frame.width, height: frame.height)
     }
 }
