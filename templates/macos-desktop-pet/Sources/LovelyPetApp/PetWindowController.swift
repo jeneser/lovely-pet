@@ -4,8 +4,6 @@ import SwiftUI
 final class PetWindowController: NSWindowController, NSWindowDelegate {
     let settings: PetSettings
     private let player: FrameAnimationPlayer
-    private let xKey = "lovelyPet.app.window.x"
-    private let yKey = "lovelyPet.app.window.y"
 
     init(settings: PetSettings, player: FrameAnimationPlayer) {
         self.settings = settings
@@ -53,14 +51,14 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
 
     private func savePosition() {
         guard let window else { return }
-        UserDefaults.standard.set(window.frame.origin.x, forKey: xKey)
-        UserDefaults.standard.set(window.frame.origin.y, forKey: yKey)
+        UserDefaults.standard.set(window.frame.origin.x, forKey: LocalStorageKeys.windowX)
+        UserDefaults.standard.set(window.frame.origin.y, forKey: LocalStorageKeys.windowY)
     }
 
     private static func savedOrigin(width: CGFloat, height: CGFloat) -> NSPoint {
         let defaults = UserDefaults.standard
-        let x = defaults.double(forKey: "lovelyPet.app.window.x")
-        let y = defaults.double(forKey: "lovelyPet.app.window.y")
+        let x = defaults.double(forKey: LocalStorageKeys.windowX)
+        let y = defaults.double(forKey: LocalStorageKeys.windowY)
         if x != 0 || y != 0 { return NSPoint(x: x, y: y) }
         return defaultOrigin(width: width, height: height)
     }
