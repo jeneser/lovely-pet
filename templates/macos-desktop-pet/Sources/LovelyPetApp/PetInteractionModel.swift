@@ -14,13 +14,20 @@ final class PetInteractionModel: ObservableObject {
     @Published var message: String? = nil
     @Published var touchedZone: String? = nil
 
-    private let affectionKey = "lovelyPet.app.affection"
     private var lastInteractionAt = Date()
     private var lastPointerLocation: CGPoint?
     private var lastPointerSize: CGSize?
+    private var resetObserver: NSObjectProtocol?
 
     init() {
-        affection = UserDefaults.standard.integer(forKey: affectionKey)
+        affection = UserDefaults.standard.integer(forKey: LocalStorageKeys.affection)
+        resetObserver = NotificationCenter.default.addObserver(forName: .lovelyPetResetLocalData, object: nil, queue: .main) { [weak self] _ in
+            self?.resetInMemoryState()
+        }
+    }
+
+    deinit {
+        if let resetObserver { NotificationCenter.default.removeObserver(resetObserver) }
     }
 
     var mood: String {
@@ -137,6 +144,20 @@ final class PetInteractionModel: ObservableObject {
     }
 
     private func persistAffection() {
-        UserDefaults.standard.set(affection, forKey: affectionKey)
+        UserDefaults.standard.set(affection, forKey: LocalStorageKeys.affection)
+    }
+
+    private func resetInMemoryState() {
+        affection = 0
+        hovering = false
+        tapping = false
+        celebrating = false
+        dragging = false
+        asleep = false
+        gazeX = 0
+        gazeY = 0
+        message = nil
+        touchedZone = nil
+        lastInteractionAt = Date()
     }
 }
