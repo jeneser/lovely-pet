@@ -63,7 +63,7 @@ jobs:
       - name: Basic runtime launch smoke check
         if: ${{ inputs.run_runtime_smoke }}
         run: |
-          app_path="templates/macos-desktop-pet/dist/LovelyPet.app"
+          app_path="templates/macos-desktop-pet/dist/Lovely Pet.app"
           if [ ! -d "${app_path}" ]; then
             echo "Packaged app not found: ${app_path}" >&2
             find templates/macos-desktop-pet/dist -maxdepth 2 -print
@@ -75,7 +75,7 @@ jobs:
             echo "LovelyPetApp process was not detected after launch." >&2
             exit 1
           fi
-          osascript -e 'tell application "LovelyPetApp" to quit' || true
+          pkill -f "LovelyPetApp" || true
 
       - name: Upload legacy runtime evidence
         uses: actions/upload-artifact@v4
