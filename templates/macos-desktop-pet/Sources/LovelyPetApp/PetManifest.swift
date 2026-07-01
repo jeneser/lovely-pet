@@ -60,10 +60,19 @@ enum PetResourceLocator {
             .appendingPathComponent("Resources/pets/\(petID)")
 
         return [
+            bundledPetRoot(petID: petID),
             Bundle.main.resourceURL?.appendingPathComponent("pets/\(petID)"),
             sourceRoot,
             currentDirectory.appendingPathComponent("Sources/LovelyPetApp/Resources/pets/\(petID)"),
             currentDirectory.appendingPathComponent("templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/\(petID)")
         ].compactMap { $0 }
+    }
+
+    private static func bundledPetRoot(petID: String) -> URL? {
+        #if SWIFT_PACKAGE
+        return Bundle.module.resourceURL?.appendingPathComponent("pets/\(petID)")
+        #else
+        return nil
+        #endif
     }
 }
