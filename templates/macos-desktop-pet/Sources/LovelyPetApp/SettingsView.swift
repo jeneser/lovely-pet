@@ -27,13 +27,16 @@ struct SettingsView: View {
                 }
             }
 
-            Section("Next") {
-                Text("Production settings should also persist window position, launch-at-login, click-through behavior, and sound preference.")
+            Section("Local Data") {
+                Button("Reset Stored Data") {
+                    settings.resetLocalData()
+                }
+                Text("Clears affection, saved scale, and saved window position from UserDefaults.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
         .padding()
-        .frame(width: 420, height: 320)
+        .frame(width: 420, height: 340)
     }
 }
