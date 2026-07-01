@@ -8,6 +8,16 @@ This is the reusable native macOS runtime for Lovely Pet.
 swift run LovelyPetApp
 ```
 
+## Open in Xcode
+
+From the repository root:
+
+```bash
+make xcode
+```
+
+Or open this directory directly in Xcode. Select the `LovelyPetApp` scheme and run on `My Mac`.
+
 ## Package
 
 ```bash
