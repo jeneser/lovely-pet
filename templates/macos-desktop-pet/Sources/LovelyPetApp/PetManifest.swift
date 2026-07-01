@@ -16,12 +16,7 @@ struct PetManifest: Codable {
     let states: [String: State]
 
     static func loadDefault() -> PetManifest {
-        let urls = [
-            Bundle.module.url(forResource: "pet", withExtension: "json", subdirectory: "Resources/pets/default"),
-            Bundle.main.resourceURL?.appendingPathComponent("pets/default/pet.json")
-        ].compactMap { $0 }
-
-        for url in urls {
+        for url in PetResourceLocator.manifestURLs() {
             do {
                 let data = try Data(contentsOf: url)
                 return try JSONDecoder().decode(PetManifest.self, from: data)
@@ -43,4 +38,27 @@ struct PetManifest: Codable {
             "idle": State(fps: 12, loop: true, frames: [], nextState: nil)
         ]
     )
+}
+
+enum PetResourceLocator {
+    static func manifestURLs() -> [URL] {
+        candidatePetRoots(petID: "default").map { $0.appendingPathComponent("pet.json") }
+    }
+
+    static func imageURL(petID: String, relativePath: String) -> URL? {
+        for root in candidatePetRoots(petID: petID) {
+            let url = root.appendingPathComponent(relativePath)
+            if FileManager.default.fileExists(atPath: url.path) { return url }
+        }
+        return nil
+    }
+
+    private static func candidatePetRoots(petID: String) -> [URL] {
+        let currentDirectory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        return [
+            Bundle.main.resourceURL?.appendingPathComponent("pets/\(petID)"),
+            currentDirectory.appendingPathComponent("Sources/LovelyPetApp/Resources/pets/\(petID)"),
+            currentDirectory.appendingPathComponent("templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/\(petID)")
+        ].compactMap { $0 }
+    }
 }
