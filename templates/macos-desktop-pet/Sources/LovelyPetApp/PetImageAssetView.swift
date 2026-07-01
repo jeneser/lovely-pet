@@ -1,4 +1,5 @@
 import SwiftUI
+import Foundation
 
 struct PetImageAssetView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
