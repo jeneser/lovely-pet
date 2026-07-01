@@ -7,23 +7,58 @@ on:
         description: Release tag, for example v0.1.0
         required: true
         default: v0.1.0
+  push:
+    branches:
+      - main
+    paths:
+      - .github/release-version.txt
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   release:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+      - name: Resolve version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="$(cat .github/release-version.txt)"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/${{ github.repository_owner }}/lovely-pet-macos" >> "$GITHUB_OUTPUT"
       - name: Validate manifest
         run: make validate
       - name: Package app bundle
         run: make package
-      - name: Create release
+      - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.tag }}
-          name: Lovely Pet ${{ github.event.inputs.tag }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Lovely Pet ${{ steps.version.outputs.tag }}
           files: templates/macos-desktop-pet/dist/Lovely-Pet-macOS.zip
           prerelease: true
+      - name: Install ORAS
+        uses: oras-project/setup-oras@v1
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Publish package to GitHub Packages
+        run: |
+          IMAGE="${{ steps.version.outputs.image }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          ZIP="templates/macos-desktop-pet/dist/Lovely-Pet-macOS.zip"
+          oras push "$IMAGE:$TAG" \
+            --annotation "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            --annotation "org.opencontainers.image.title=Lovely Pet macOS" \
+            --annotation "org.opencontainers.image.version=$TAG" \
+            "$ZIP:application/zip"
+          oras push "$IMAGE:latest" \
+            --annotation "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            --annotation "org.opencontainers.image.title=Lovely Pet macOS" \
+            --annotation "org.opencontainers.image.version=$TAG" \
+            "$ZIP:application/zip"
