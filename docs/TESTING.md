@@ -25,10 +25,21 @@ make package
 - Long press triggers the hold/startled reaction.
 - Affection count increases and persists after restarting the app.
 - Scale can be changed from Settings and persists after restart.
+- Settings -> Reset Stored Data clears affection, saved scale, and saved window position.
 - After a quiet period, the pet can enter sleepy visual state.
 - Menu bar item remains available.
 - Quit works from the menu.
 - Packaged app opens from `templates/macos-desktop-pet/dist/Lovely Pet.app`.
+
+## Runtime safety checklist
+
+- Activity Monitor shows only one `LovelyPetApp` process while the app is running.
+- Quit from the menu bar stops the process.
+- The app does not relaunch itself after Quit.
+- CPU use stays modest while idle.
+- Memory use remains stable after several minutes of hover and tap testing.
+- Deleting `Lovely Pet.app` removes the executable bundle.
+- Optional local state cleanup removes `~/Library/Preferences/app.lovelypet.macos.plist`.
 
 ## Asset QA
 
