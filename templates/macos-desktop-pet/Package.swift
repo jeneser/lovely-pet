@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "LovelyPetApp",
-    // Support macOS 12 Monterey, 13 Ventura, 14 Sonoma, 15 Sequoia
+    // Support macOS 12+; compatibility coverage tracks macOS 26, 15, 14, 13, and 12.
     platforms: [.macOS(.v12)],
     products: [
         .executable(name: "LovelyPetApp", targets: ["LovelyPetApp"])
