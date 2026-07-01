@@ -2,7 +2,7 @@
 
 ## Local checks
 
-Run these commands before shipping a customer build:
+Run these commands before creating a distributable build:
 
 ```bash
 make validate
@@ -28,13 +28,13 @@ make package
 - After a quiet period, the pet can enter sleepy visual state.
 - Menu bar item remains available.
 - Quit works from the menu.
-- Packaged app opens from `dist/`.
+- Packaged app opens from `templates/macos-desktop-pet/dist/Lovely Pet.app`.
 
-## Customer build QA
+## Asset QA
 
 - Pet name is correct.
 - The pet still resembles the source animal.
-- No private customer photos are committed to git.
+- Private source photos are not committed to git unless they are intentionally public sample assets.
 - Generated images have clean transparent edges.
 - All expected animation states are present.
-- The app is signed and notarized for paid external distribution.
+- External distribution builds should use a proper signing and notarization flow.
