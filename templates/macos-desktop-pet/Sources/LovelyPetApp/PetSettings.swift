@@ -28,6 +28,7 @@ final class PetSettings: ObservableObject {
             LocalStorageKeys.windowY
         ].forEach { UserDefaults.standard.removeObject(forKey: $0) }
         scale = manifest.scale
+        UserDefaults.standard.removeObject(forKey: LocalStorageKeys.scale)
         NotificationCenter.default.post(name: .lovelyPetResetLocalData, object: nil)
     }
 }
