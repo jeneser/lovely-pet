@@ -16,6 +16,8 @@ make package
 - App launches without terminal errors.
 - Pet window is transparent and floating.
 - Pet can be dragged to a new position.
+- Pet position persists after restarting the app.
+- Menu bar Reset Position moves the pet back to the default area.
 - Hover makes the pet lift, look alive, and track the cursor.
 - Clicking the head, tail, paws, and body shows different messages or visual feedback.
 - Tap makes the pet visibly react and then return to idle.
