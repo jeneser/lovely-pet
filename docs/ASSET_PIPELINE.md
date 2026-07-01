@@ -15,7 +15,7 @@ The highest-risk failure is identity drift: face shape, coat pattern, eye color,
 5. Produce transparent PNG frames or layered parts.
 6. Place final assets into the pet resource folder.
 7. Validate `pet.json`.
-8. Build the customer app.
+8. Build the app bundle.
 
 ## Prompt: Character Lock
 
