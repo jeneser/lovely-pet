@@ -16,18 +16,21 @@ struct PetManifest: Codable {
     let states: [String: State]
 
     static func loadDefault() -> PetManifest {
-        let bundle = Bundle.module
-        guard let url = bundle.url(forResource: "pet", withExtension: "json", subdirectory: "Resources/pets/default") else {
-            return PetManifest.placeholder
+        let urls = [
+            Bundle.module.url(forResource: "pet", withExtension: "json", subdirectory: "Resources/pets/default"),
+            Bundle.main.resourceURL?.appendingPathComponent("pets/default/pet.json")
+        ].compactMap { $0 }
+
+        for url in urls {
+            do {
+                let data = try Data(contentsOf: url)
+                return try JSONDecoder().decode(PetManifest.self, from: data)
+            } catch {
+                NSLog("Failed to load pet manifest at \(url.path): \(error)")
+            }
         }
 
-        do {
-            let data = try Data(contentsOf: url)
-            return try JSONDecoder().decode(PetManifest.self, from: data)
-        } catch {
-            NSLog("Failed to load pet manifest: \(error)")
-            return PetManifest.placeholder
-        }
+        return PetManifest.placeholder
     }
 
     static let placeholder = PetManifest(
