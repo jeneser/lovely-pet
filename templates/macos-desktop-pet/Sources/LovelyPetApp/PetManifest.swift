@@ -55,8 +55,13 @@ enum PetResourceLocator {
 
     private static func candidatePetRoots(petID: String) -> [URL] {
         let currentDirectory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        let sourceRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .appendingPathComponent("Resources/pets/\(petID)")
+
         return [
             Bundle.main.resourceURL?.appendingPathComponent("pets/\(petID)"),
+            sourceRoot,
             currentDirectory.appendingPathComponent("Sources/LovelyPetApp/Resources/pets/\(petID)"),
             currentDirectory.appendingPathComponent("templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/\(petID)")
         ].compactMap { $0 }
