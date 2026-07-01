@@ -1,9 +1,12 @@
 import AppKit
+import Combine
 import Foundation
 
 final class FrameAnimationPlayer: ObservableObject {
     @Published private(set) var currentImage: NSImage?
     @Published private(set) var stateName: String
+
+    private static let decodedImageCache = NSCache<NSURL, NSImage>()
 
     private let manifest: PetManifest
     private var timer: Timer?
@@ -51,6 +54,14 @@ final class FrameAnimationPlayer: ObservableObject {
         }
     }
 
+    func handleSleep(_ sleeping: Bool) {
+        if sleeping, manifest.states["sleep"] != nil {
+            play(state: "sleep")
+        } else if stateName == "sleep" {
+            play(state: manifest.defaultState)
+        }
+    }
+
     private func advance() {
         guard let state = manifest.states[stateName], !state.frames.isEmpty else { return }
         frameIndex += 1
@@ -72,8 +83,38 @@ final class FrameAnimationPlayer: ObservableObject {
         }
 
         let frame = state.frames[min(frameIndex, state.frames.count - 1)]
-        currentImage = PetResourceLocator.imageURL(petID: manifest.id, relativePath: frame)
-            .flatMap { NSImage(contentsOf: $0) }
+        currentImage = loadImage(frame: frame)
             ?? NSImage(systemSymbolName: "pawprint.fill", accessibilityDescription: "Lovely Pet")
+    }
+
+    private func loadImage(frame: String) -> NSImage? {
+        guard let url = PetResourceLocator.imageURL(petID: manifest.id, relativePath: frame) else { return nil }
+        let cacheKey = url as NSURL
+
+        if let cachedImage = Self.decodedImageCache.object(forKey: cacheKey) {
+            return cachedImage
+        }
+
+        let image: NSImage?
+        if url.pathExtension.lowercased() == "b64" {
+            image = Self.loadBase64EncodedImage(from: url)
+        } else {
+            image = NSImage(contentsOf: url)
+        }
+
+        if let image {
+            Self.decodedImageCache.setObject(image, forKey: cacheKey)
+        }
+        return image
+    }
+
+    private static func loadBase64EncodedImage(from url: URL) -> NSImage? {
+        guard
+            let encoded = try? String(contentsOf: url, encoding: .utf8),
+            let data = Data(base64Encoded: encoded, options: .ignoreUnknownCharacters)
+        else {
+            return nil
+        }
+        return NSImage(data: data)
     }
 }

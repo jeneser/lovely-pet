@@ -9,6 +9,9 @@ let package = Package(
         .executable(name: "LovelyPetApp", targets: ["LovelyPetApp"])
     ],
     targets: [
-        .executableTarget(name: "LovelyPetApp")
+        .executableTarget(
+            name: "LovelyPetApp",
+            resources: [.process("Resources")]
+        )
     ]
 )

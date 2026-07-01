@@ -1,7 +1,7 @@
 {
   "id": "default",
   "name": "Lovely Ragdoll",
-  "renderer": { "type": "proceduralRagdoll" },
+  "renderer": { "type": "imageAssets" },
   "window": { "width": 320, "height": 340 },
   "behavior": {
     "hoverState": "hover",
@@ -13,25 +13,37 @@
   "defaultState": "idle",
   "states": {
     "idle": {
-      "fps": 12,
+      "fps": 2,
       "loop": true,
-      "frames": []
+      "frames": [
+        "frames/idle.png.b64",
+        "frames/idle.png.b64"
+      ]
     },
     "hover": {
-      "fps": 16,
+      "fps": 2,
       "loop": true,
-      "frames": []
+      "frames": [
+        "frames/hover.png.b64",
+        "frames/hover.png.b64"
+      ]
     },
     "tap": {
-      "fps": 18,
+      "fps": 8,
       "loop": false,
-      "frames": [],
+      "frames": [
+        "frames/tap.png.b64",
+        "frames/hover.png.b64"
+      ],
       "nextState": "idle"
     },
     "sleep": {
-      "fps": 8,
+      "fps": 1,
       "loop": true,
-      "frames": []
+      "frames": [
+        "frames/sleep.png.b64",
+        "frames/sleep.png.b64"
+      ]
     }
   }
 }

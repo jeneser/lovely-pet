@@ -10,7 +10,7 @@ struct PetView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            ProceduralRagdollCatView(interaction: interaction)
+            PetImageAssetView(player: player, interaction: interaction)
                 .frame(width: proxy.size.width, height: proxy.size.height)
                 .contentShape(Rectangle())
                 .background(Color.clear)
@@ -46,6 +46,10 @@ struct PetView: View {
         .background(Color.clear)
         .onReceive(idleTimer) { _ in
             interaction.maybeSleep()
+            player.handleSleep(interaction.asleep)
+        }
+        .onChange(of: interaction.asleep) { sleeping in
+            player.handleSleep(sleeping)
         }
     }
 }
