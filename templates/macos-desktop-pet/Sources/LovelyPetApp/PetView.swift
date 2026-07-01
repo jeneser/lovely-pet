@@ -18,7 +18,7 @@ struct PetView: View {
                     interaction.setHovering(value)
                     player.handleHover(value)
                 }
-                // onContinuousHover requires macOS 13+; fall back to onHover on macOS 12
+                // onContinuousHover is macOS 13+; the modifier guards internally
                 .modifier(ContinuousHoverModifier(interaction: interaction, player: player, proxy: proxy))
                 .onTapGesture(count: 2) {
                     interaction.doubleTap()
@@ -41,22 +41,23 @@ struct PetView: View {
             interaction.maybeSleep()
             player.handleSleep(interaction.asleep)
         }
-        // onChange(of:) with single new-value closure requires macOS 14+
-        // Use the two-argument form (oldValue, newValue) which is available on macOS 12+
-        .onChange(of: interaction.asleep) { _, sleeping in
+        // The two-argument { old, new in } form of onChange is macOS 14+ only.
+        // Use the single-argument perform: label overload which is available on macOS 12+.
+        .onChange(of: interaction.asleep, perform: { sleeping in
             player.handleSleep(sleeping)
-        }
+        })
     }
 }
 
 // MARK: - Continuous Hover Compat
 
-/// Wraps `onContinuousHover` (macOS 13+) and silently does nothing on macOS 12.
+/// Applies `onContinuousHover` on macOS 13+ and is a no-op on macOS 12.
 private struct ContinuousHoverModifier: ViewModifier {
     let interaction: PetInteractionModel
     let player: FrameAnimationPlayer
     let proxy: GeometryProxy
 
+    @ViewBuilder
     func body(content: Content) -> some View {
         if #available(macOS 13, *) {
             content.onContinuousHover { phase in
@@ -69,7 +70,7 @@ private struct ContinuousHoverModifier: ViewModifier {
                 }
             }
         } else {
-            // macOS 12: gaze tracking not available, graceful degradation
+            // macOS 12: gaze tracking unavailable, graceful degradation
             content
         }
     }
