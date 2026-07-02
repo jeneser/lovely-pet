@@ -3,7 +3,7 @@
 ## 0.1 Ready-to-run demo
 
 - Swift + AppKit desktop window.
-- Procedural ragdoll demo based on supplied cat photos.
+- PNG frame-sequence ragdoll demo loaded from bundled resources.
 - Hover and tap feedback.
 - Manifest validation.
 - Basic app packaging.
@@ -13,7 +13,7 @@
 
 Done:
 
-- Eye tracking toward cursor.
+- Cursor-aware movement.
 - Double-click special reaction.
 - Idle timeout to sleep.
 - Affection counter.
@@ -21,10 +21,9 @@ Done:
 - Persistent scale setting through UserDefaults.
 - Persistent window position through UserDefaults.
 - Settings panel with scale control.
-- Menu action to reset pet position.
-- Petting zones for head, tail, paws, and body.
+- Menu action to reset position.
 - Long-press hold reaction.
-- Breathing, blinking, tail motion, hearts, sparkles, message bubble, and zone feedback.
+- Frame-state changes, hearts, sparkles, message bubble, and zone feedback.
 
 Remaining:
 
@@ -34,8 +33,7 @@ Remaining:
 
 ## 0.3 Asset-backed customer builds
 
-- `singleSprite` renderer.
-- `frameSequence` renderer.
+- Extend the `imageAssets` PNG frame renderer.
 - Customer asset injection script.
 - QA report generation.
 - Build artifact upload.
