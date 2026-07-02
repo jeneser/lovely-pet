@@ -54,7 +54,7 @@ final class FrameAnimationPlayer: ObservableObject {
             return
         }
 
-        if let exitFrames = manifest.states[stateName]?.exitFrames, !exitFrames.isEmpty {
+        if let exitFrames = transitionFrames(from: stateName, to: state) {
             startTransition(from: stateName, to: state, exitFrames: exitFrames)
             return
         }
@@ -114,6 +114,38 @@ final class FrameAnimationPlayer: ObservableObject {
             Unmanaged.passUnretained(self).toOpaque()
         )
         displayLink = newDisplayLink
+    }
+
+    private func transitionFrames(from currentState: String, to nextState: String) -> [String]? {
+        guard
+            currentState != nextState,
+            let exitFrames = manifest.states[currentState]?.exitFrames,
+            !exitFrames.isEmpty
+        else {
+            return nil
+        }
+
+        // Treat exitFrames as a specific transition rather than a generic exit animation.
+        // The bundled manifest stores frames under directories such as idle_to_hover and
+        // hover_to_idle, so idle will no longer route through idle_to_hover before tap,
+        // sleep, or Dock walk states.
+        let expectedPathSegment = "\(currentState)_to_\(nextState)/"
+        if exitFrames.contains(where: { $0.contains(expectedPathSegment) }) {
+            return exitFrames
+        }
+
+        // Backward-compatible fallback for manifests that provide behavior state names
+        // but do not encode the transition target in the frame path.
+        let defaultState = manifest.defaultState
+        let hoverState = manifest.behavior?.hoverState ?? "hover"
+        if currentState == defaultState, nextState == hoverState {
+            return exitFrames
+        }
+        if currentState == hoverState, nextState == defaultState {
+            return exitFrames
+        }
+
+        return nil
     }
 
     private func startTransition(from currentState: String, to nextState: String, exitFrames: [String]) {
