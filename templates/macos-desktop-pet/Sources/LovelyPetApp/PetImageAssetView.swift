@@ -33,7 +33,7 @@ struct PetImageAssetView: View {
             .animation(.spring(response: 0.36, dampingFraction: 0.55), value: interaction.celebrating)
             .animation(.spring(response: 0.18, dampingFraction: 0.45), value: interaction.dragging)
             .animation(.spring(response: 0.30, dampingFraction: 0.76), value: player.stateName)
-            .accessibilityLabel("Lovely photo based desktop pet")
+            .accessibilityLabel("Lovely PNG frame desktop pet")
         }
     }
 
@@ -52,16 +52,14 @@ struct PetImageAssetView: View {
                     .interpolation(.high)
                     .scaledToFit()
             } else {
-                Image(systemName: "pawprint.fill")
-                    .font(.system(size: 120, weight: .semibold))
-                    .foregroundStyle(.white)
+                Color.clear
             }
         }
         .frame(width: size.width, height: size.height)
         .scaleEffect(breathingScale * interactionScale, anchor: .bottom)
         .offset(x: gazeOffset.width, y: gazeOffset.height + (sleeping ? 36 : 0))
         .rotationEffect(.degrees(rotation), anchor: .bottom)
-        .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 4)
+        .shadow(color: .black.opacity(player.currentImage == nil ? 0 : 0.18), radius: 8, x: 0, y: 4)
     }
 
     private func spriteSize(sleeping: Bool) -> CGSize {
@@ -70,7 +68,7 @@ struct PetImageAssetView: View {
 
     private func groundShadow(sleeping: Bool, breath: CGFloat) -> some View {
         Ellipse()
-            .fill(Color.black.opacity(interaction.dragging ? 0.08 : 0.14))
+            .fill(Color.black.opacity(player.currentImage == nil ? 0 : (interaction.dragging ? 0.08 : 0.14)))
             .frame(width: sleeping ? 210 + breath * 2 : 156 + breath * 2, height: sleeping ? 18 : 24)
             .offset(y: sleeping ? 142 : 150)
             .blur(radius: 4)
