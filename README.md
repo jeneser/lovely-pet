@@ -4,7 +4,7 @@ Lovely Pet is a reusable macOS desktop pet template. It combines pet assets, int
 
 [中文说明](README.zh-CN.md)
 
-The current version works out of the box. After cloning the repository, you can run a ragdoll cat sample immediately. The sample uses manifest-driven transparent PNG image frames from `Resources/pets/default/frames`; it does not draw the pet character with SwiftUI procedural shapes. Lightweight interactions include hover, click, double-click, long-press, touch zones, affection memory, scale settings, and a sleepy rhythm.
+The current version works out of the box. After cloning the repository, you can run a ragdoll cat sample immediately. The sample uses manifest-driven transparent PNG image frames from `Resources/pets/default/frames`, with lightweight interactions such as hover, click, double-click, long-press, touch zones, affection memory, scale settings, and a sleepy rhythm.
 
 ## Quick start
 

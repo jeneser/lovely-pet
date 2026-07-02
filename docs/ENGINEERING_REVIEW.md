@@ -10,7 +10,7 @@ The implementation was checked against a small-diff engineering rule set: reuse 
 
 ## Fixes made
 
-- Kept the visible character asset-backed through PNG frames instead of SwiftUI procedural drawing.
+- Kept the visible character backed by PNG frames loaded from `pet.json`.
 - Centralized interaction state in `PetInteractionModel` instead of scattering affection, sleep, and gaze state through the view.
 - Persisted affection and scale with `UserDefaults`, using native platform storage rather than adding a database or config layer.
 - Persisted window position in `PetWindowController`, where the real window movement occurs.
