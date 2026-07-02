@@ -24,6 +24,7 @@ final class LovelyPetApplication: NSObject, NSApplicationDelegate {
         let manifest = PetManifest.loadDefault()
         let settings = PetSettings(manifest: manifest)
         let player = FrameAnimationPlayer(manifest: manifest)
+        player.preloadAllFrames()
 
         windowController = PetWindowController(settings: settings, player: player)
         windowController?.showPet()
@@ -38,6 +39,7 @@ final class LovelyPetApplication: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.addItem(menuItem(title: "Show Pet", action: #selector(showPet)))
         menu.addItem(menuItem(title: "Reset Position", action: #selector(resetPosition), keyEquivalent: "r"))
+        menu.addItem(menuItem(title: "Toggle Dock Walk", action: #selector(toggleDockWalk), keyEquivalent: "w"))
         menu.addItem(menuItem(title: "Settings", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(.separator())
         menu.addItem(menuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
@@ -59,6 +61,10 @@ final class LovelyPetApplication: NSObject, NSApplicationDelegate {
         windowController?.resetPosition()
     }
 
+    @objc private func toggleDockWalk() {
+        windowController?.toggleDockWalk()
+    }
+
     @objc private func openSettings() {
         guard let settings = windowController?.settings else { return }
         let view = SettingsView(settings: settings)
@@ -73,8 +79,8 @@ final class LovelyPetApplication: NSObject, NSApplicationDelegate {
         window.contentView = NSHostingView(rootView: view)
         window.makeKeyAndOrderFront(nil)
         settingsWindow = window
-        // NSApp.activate(ignoringOtherApps:) is deprecated in macOS 14+
-        // Use the new activate() API on macOS 14+ and fall back on older systems
+        // NSApp.activate(ignoringOtherApps:) is deprecated in macOS 14+.
+        // Use the new activate() API on macOS 14+ and fall back on older systems.
         if #available(macOS 14, *) {
             NSApp.activate()
         } else {

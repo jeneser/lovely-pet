@@ -4,7 +4,7 @@ Lovely Pet is a reusable macOS desktop pet template. It combines pet assets, int
 
 [中文说明](README.zh-CN.md)
 
-The current version works out of the box. After cloning the repository, you can run a ragdoll cat sample immediately. The sample does not require external image assets; it uses SwiftUI to draw a procedural character based on stable ragdoll-cat visual traits, with lightweight interactions such as hover, click, double-click, long-press, petting zones, affection memory, scale settings, and a sleepy rhythm.
+The current version works out of the box with an asset-backed ragdoll cat sample. The runtime reads transparent PNG frame sequences from `pet.json`, preloads them, and plays them with a display-synchronized frame player. The SwiftUI procedural ragdoll renderer has been removed so production behavior always matches the checked-in image assets.
 
 ## Quick start
 
@@ -26,17 +26,18 @@ make package
 open "templates/macos-desktop-pet/dist/Lovely Pet.app"
 ```
 
-GitHub Actions produces a downloadable build artifact:
+GitHub Actions produces downloadable build artifacts named by runner OS, for example:
 
 ```text
-Lovely-Pet-macOS
+Lovely-Pet-macOS-macos-14
 ```
 
 ## Included
 
 - Native Swift + AppKit + SwiftUI macOS desktop pet runtime
-- Transparent floating window, menu bar entry, hover, click, double-click, and long-press interactions
-- Procedural ragdoll cat sample that runs without image assets
+- Transparent Dock-level pet window, menu bar entry, hover, click, double-click, long-press, and Dock walk controls
+- Asset-backed PNG frame animation for idle, hover, tap, sleep, walk-right, and walk-left states
+- CVDisplayLink frame pacing, transition frames, and startup frame preloading
 - Cursor tracking, petting zones, affection memory, sleepy state, persistent scale, and persistent window position
 - Manifest-based configuration and validation script
 - Xcode debugging support through the Swift Package
@@ -67,4 +68,4 @@ examples/ragdoll-demo/         Ragdoll character profile and notes
 
 ## Current focus
 
-The current focus is product feel: natural hover response, cursor-aware gaze, petting-zone feedback, simple affection memory, sleepy rhythm, predictable local state, Xcode-friendly debugging, and stable macOS packaging.
+The current focus is product feel: smooth PNG frame playback, transition-buffered state changes, Dock walking, natural hover response, cursor-aware gaze, petting-zone feedback, simple affection memory, sleepy rhythm, predictable local state, Xcode-friendly debugging, and stable macOS packaging.

@@ -27,11 +27,11 @@ open "dist/Lovely Pet.app"
 
 ## Current renderer
 
-The default sample uses `ProceduralRagdollCatView`, a SwiftUI renderer based on ragdoll cat visual traits. It does not require PNG assets, so the template can run immediately after cloning.
+The default sample uses `PetImageAssetView` and `FrameAnimationPlayer` to play transparent PNG frame sequences declared by `Resources/pets/default/pet.json`. Runtime drawing no longer uses `ProceduralRagdollCatView`.
 
 ## Extension points
 
-- Replace the procedural view with a single transparent sprite renderer.
-- Add frame sequence playback for generated PNG animation states.
+- Replace the default PNG frame pack with a customer-specific transparent frame sequence.
+- Add more transition states through `exitFrames` in `pet.json`.
 - Add layered or skeletal rendering for advanced builds.
 - Keep pet-specific data in `Resources/pets/<pet-id>/pet.json`.

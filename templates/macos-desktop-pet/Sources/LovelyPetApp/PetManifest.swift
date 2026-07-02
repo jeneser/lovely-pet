@@ -1,15 +1,34 @@
 import Foundation
 
 struct PetManifest: Codable {
+    struct Renderer: Codable {
+        let type: String
+    }
+
+    struct Window: Codable {
+        let width: Double
+        let height: Double
+    }
+
+    struct Behavior: Codable {
+        let hoverState: String?
+        let tapState: String?
+        let sleepState: String?
+    }
+
     struct State: Codable {
         let fps: Int
         let loop: Bool
         let frames: [String]
+        let exitFrames: [String]?
         let nextState: String?
     }
 
     let id: String
     let name: String
+    let renderer: Renderer?
+    let window: Window?
+    let behavior: Behavior?
     let scale: Double
     let anchor: String
     let defaultState: String
@@ -31,11 +50,14 @@ struct PetManifest: Codable {
     static let placeholder = PetManifest(
         id: "placeholder",
         name: "Lovely Pet",
+        renderer: Renderer(type: "imageAssets"),
+        window: Window(width: 340, height: 360),
+        behavior: Behavior(hoverState: "hover", tapState: "tap", sleepState: "sleep"),
         scale: 1.0,
         anchor: "bottom-right",
         defaultState: "idle",
         states: [
-            "idle": State(fps: 12, loop: true, frames: [], nextState: nil)
+            "idle": State(fps: 12, loop: true, frames: [], exitFrames: nil, nextState: nil)
         ]
     )
 }

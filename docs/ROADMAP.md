@@ -2,8 +2,10 @@
 
 ## 0.1 Ready-to-run demo
 
+Done:
+
 - Swift + AppKit desktop window.
-- Procedural ragdoll demo based on supplied cat photos.
+- Asset-backed ragdoll demo based on transparent PNG frame sequences.
 - Hover and tap feedback.
 - Manifest validation.
 - Basic app packaging.
@@ -25,6 +27,9 @@ Done:
 - Petting zones for head, tail, paws, and body.
 - Long-press hold reaction.
 - Breathing, blinking, tail motion, hearts, sparkles, message bubble, and zone feedback.
+- `CVDisplayLink` frame playback for PNG states.
+- Transition frames between idle and hover.
+- Dock walk with left/right animation states.
 
 Remaining:
 
@@ -34,11 +39,17 @@ Remaining:
 
 ## 0.3 Asset-backed customer builds
 
-- `singleSprite` renderer.
-- `frameSequence` renderer.
-- Customer asset injection script.
-- QA report generation.
+Done:
+
+- `frameSequence` renderer through `PetImageAssetView` and `FrameAnimationPlayer`.
+- Customer asset injection shape through `pet.json`.
+- QA-ready manifest validation for referenced frame files.
 - Build artifact upload.
+
+Next:
+
+- Production asset QA report generation.
+- Larger paid-build frame packs outside the lightweight sample set.
 
 ## 0.4 Commercial workflow
 

@@ -2,7 +2,7 @@
 
 ## Principle
 
-Do not turn random pet photos directly into a video. First lock a stable 2D character identity, then create key poses, then produce animation-ready frames or layered assets.
+Do not turn random pet photos directly into a video. First lock a stable 2D character identity, then create key poses, then produce animation-ready transparent PNG frames or layered assets.
 
 The highest-risk failure is identity drift: face shape, coat pattern, eye color, body ratio, or lighting changes between frames.
 
@@ -13,9 +13,10 @@ The highest-risk failure is identity drift: face shape, coat pattern, eye color,
 3. Generate a small set of key poses.
 4. QA identity consistency.
 5. Produce transparent PNG frames or layered parts.
-6. Place final assets into the pet resource folder.
-7. Validate `pet.json`.
-8. Build the app bundle.
+6. Add in-between frames for each runtime state.
+7. Place final assets into the pet resource folder.
+8. Validate `pet.json`.
+9. Build the app bundle.
 
 ## Prompt: Character Lock
 
@@ -35,11 +36,21 @@ The highest-risk failure is identity drift: face shape, coat pattern, eye color,
 基于同一只猫角色，生成一组用于鼠标 hover 互动的关键姿态：先注意到鼠标、耳朵竖起、眼睛跟随、身体微微前倾、抬前爪试探、恢复站立。动作情绪递进自然，适合在 0.8 到 1.2 秒内做顺滑过渡。所有姿态必须保持同一只猫的花色和体型一致，背景透明。
 ```
 
-## Prompt: Layered Parts
+## Prompt: Walk Loop
 
 ```text
-把这只猫输出为可制作 2D 骨骼动画的分层素材设计稿。请分别生成并清晰标注这些层：头部、身体、左前腿、右前腿、左后腿、右后腿、尾巴、左耳、右耳、左眼、右眼、嘴部。每个部件边缘需要被合理补全，允许对被遮挡区域进行补画，以便后续旋转、位移和轻微变形。保持透明背景、角色一致、结构清晰，不要添加任何多余装饰。
+基于同一只猫角色，生成一组桌宠在 Dock 上方横向行走的关键姿态。动作包含左右前后腿交替、身体轻微上下起伏、尾巴保持自然平衡。要求 8 到 12 帧可首尾循环，透明背景，画布尺寸一致，脚底锚点对齐，右行动作可镜像为左行。
 ```
+
+## Frame Targets
+
+| State | Recommended frames | fps | Notes |
+|---|---:|---:|---|
+| `idle` | 8-12 | 12 | breathing, blink, tail sway |
+| `hover` | 6-10 | 16 | attention, ears up, paw probe |
+| `tap` | 5-8 | 18 | startle, hop, land, recover |
+| `sleep` | 6-8 | 8 | slow breathing loop |
+| `walk_right` / `walk_left` | 8-12 each | 14 | horizontal Dock walking loop |
 
 ## QA Rubric
 
@@ -50,16 +61,21 @@ The highest-risk failure is identity drift: face shape, coat pattern, eye color,
 | Perspective | No major camera or body-ratio drift |
 | Edge quality | Clean alpha, no background residue |
 | Animation readability | Pose intention is clear |
-| Rig suitability | Limbs, tail, ears can be separated |
+| Frame continuity | First and last loop frames connect without a visible hitch |
+| Anchor consistency | Feet/body baseline stays aligned across frames |
 
-## Recommended Directory
+## Runtime Directory
 
 ```text
-examples/cat-assets/
-  raw-photos/
-  selected/
-  character/
-  poses/
-  layered/
-  final-frames/
+templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/
+  pet.json
+  frames/
+    idle/
+    hover/
+    tap/
+    sleep/
+    walk_right/
+    walk_left/
+    idle_to_hover/
+    hover_to_idle/
 ```

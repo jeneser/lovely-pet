@@ -1,9 +1,13 @@
 import AppKit
+import CoreGraphics
 import SwiftUI
 
 final class PetWindowController: NSWindowController, NSWindowDelegate {
     let settings: PetSettings
     private let player: FrameAnimationPlayer
+    private var walkTimer: Timer?
+    private var walkDirection: CGFloat = 1
+    private var isDockWalking = false
 
     init(settings: PetSettings, player: FrameAnimationPlayer) {
         self.settings = settings
@@ -14,10 +18,10 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
         hostingView.wantsLayer = true
         hostingView.layer?.backgroundColor = NSColor.clear.cgColor
 
-        let size = NSSize(width: 340, height: 360)
-        let origin = Self.savedOrigin(width: size.width, height: size.height)
+        let manifestSize = Self.manifestWindowSize(settings.manifest)
+        let origin = Self.savedOrigin(width: manifestSize.width, height: manifestSize.height)
         let window = NSPanel(
-            contentRect: NSRect(origin: origin, size: size),
+            contentRect: NSRect(origin: origin, size: manifestSize),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -26,7 +30,7 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
         window.isOpaque = false
         window.backgroundColor = .clear
         window.hasShadow = true
-        window.level = .floating
+        window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.dockWindow)) + 1)
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         window.contentView = hostingView
         window.isMovableByWindowBackground = true
@@ -40,6 +44,7 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
     }
 
     func resetPosition() {
+        stopDockWalk()
         guard let window else { return }
         window.setFrameOrigin(Self.defaultOrigin(width: window.frame.width, height: window.frame.height))
         window.orderFrontRegardless()
@@ -56,14 +61,63 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
         window.orderFrontRegardless()
     }
 
+    func toggleDockWalk() {
+        isDockWalking ? stopDockWalk() : startDockWalk()
+    }
+
     func windowDidMove(_ notification: Notification) {
+        if !isDockWalking { savePosition() }
+    }
+
+    private func startDockWalk() {
+        guard let window, let path = Self.dockWalkingPath(windowSize: window.frame.size) else { return }
+        isDockWalking = true
+        walkDirection = 1
+        window.setFrameOrigin(NSPoint(x: path.minX, y: path.y))
+        player.play(state: "walk_right")
+        walkTimer?.invalidate()
+        walkTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
+            self?.advanceDockWalk()
+        }
+        RunLoop.main.add(walkTimer!, forMode: .common)
+    }
+
+    private func stopDockWalk() {
+        isDockWalking = false
+        walkTimer?.invalidate()
+        walkTimer = nil
+        player.playDefaultState()
         savePosition()
+    }
+
+    private func advanceDockWalk() {
+        guard let window, let path = Self.dockWalkingPath(windowSize: window.frame.size) else { return }
+        var origin = window.frame.origin
+        origin.x += walkDirection * 1.5
+        origin.y = path.y
+        if origin.x >= path.maxX {
+            origin.x = path.maxX
+            walkDirection = -1
+            player.play(state: "walk_left")
+        } else if origin.x <= path.minX {
+            origin.x = path.minX
+            walkDirection = 1
+            player.play(state: "walk_right")
+        }
+        window.setFrameOrigin(origin)
     }
 
     private func savePosition() {
         guard let window else { return }
         UserDefaults.standard.set(window.frame.origin.x, forKey: LocalStorageKeys.windowX)
         UserDefaults.standard.set(window.frame.origin.y, forKey: LocalStorageKeys.windowY)
+    }
+
+    private static func manifestWindowSize(_ manifest: PetManifest) -> NSSize {
+        if let window = manifest.window {
+            return NSSize(width: CGFloat(window.width), height: CGFloat(window.height))
+        }
+        return NSSize(width: 340, height: 360)
     }
 
     private static func savedOrigin(width: CGFloat, height: CGFloat) -> NSPoint {
@@ -88,5 +142,25 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
             return frame.origin
         }
         return defaultOrigin(width: frame.width, height: frame.height)
+    }
+
+    private static func dockFrame() -> NSRect? {
+        guard let screen = NSScreen.main else { return nil }
+        let full = screen.frame
+        let visible = screen.visibleFrame
+        if visible.minY > full.minY {
+            return NSRect(x: full.minX, y: full.minY, width: full.width, height: visible.minY - full.minY)
+        }
+        return nil
+    }
+
+    private static func dockWalkingPath(windowSize: NSSize) -> (minX: CGFloat, maxX: CGFloat, y: CGFloat)? {
+        guard let screen = NSScreen.main else { return nil }
+        let dock = dockFrame()
+        let y = (dock?.maxY ?? screen.visibleFrame.minY) - 18
+        let minX = screen.visibleFrame.minX + 40
+        let maxX = screen.visibleFrame.maxX - windowSize.width - 40
+        guard maxX > minX else { return nil }
+        return (minX, maxX, y)
     }
 }

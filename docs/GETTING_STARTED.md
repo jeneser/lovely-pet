@@ -7,6 +7,8 @@ make validate
 make run
 ```
 
+The sample is a native macOS desktop pet. It uses PNG frame assets declared in `pet.json`; the procedural SwiftUI cat renderer has been removed.
+
 ## 2. Open in Xcode
 
 ```bash
@@ -22,8 +24,6 @@ make package
 open "templates/macos-desktop-pet/dist/Lovely Pet.app"
 ```
 
-The sample is a native macOS desktop pet. It uses a procedural ragdoll cat renderer, so it runs immediately without external image assets.
-
 ## 4. Customize the pet
 
 Edit:
@@ -32,4 +32,4 @@ Edit:
 templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json
 ```
 
-Change the name, scale, animation states, and resource references. Run `make validate` after every edit.
+Change the name, scale, window size, animation states, transition frames, and resource references. Add matching transparent PNG files under `frames/<state>/` and run `make validate` after every edit.
