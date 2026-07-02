@@ -8,6 +8,13 @@ struct PetView: View {
 
     private let idleTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
+    private var configuredWindowSize: CGSize {
+        if let window = settings.manifest.window {
+            return CGSize(width: CGFloat(window.width), height: CGFloat(window.height))
+        }
+        return CGSize(width: 340, height: 360)
+    }
+
     var body: some View {
         GeometryReader { proxy in
             PetImageAssetView(player: player, interaction: interaction)
@@ -35,7 +42,10 @@ struct PetView: View {
                     }
                 }
         }
-        .frame(width: 300 * settings.scale, height: 320 * settings.scale)
+        .frame(
+            width: configuredWindowSize.width * CGFloat(settings.scale),
+            height: configuredWindowSize.height * CGFloat(settings.scale)
+        )
         .background(Color.clear)
         .onReceive(idleTimer) { _ in
             interaction.maybeSleep()
