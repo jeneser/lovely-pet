@@ -78,43 +78,39 @@ final class FrameAnimationPlayer: ObservableObject {
 
     private func loadFrame() {
         guard let state = manifest.states[stateName], !state.frames.isEmpty else {
-            currentImage = NSImage(systemSymbolName: "pawprint.fill", accessibilityDescription: "Lovely Pet")
+            currentImage = nil
             return
         }
 
         let frame = state.frames[min(frameIndex, state.frames.count - 1)]
         currentImage = loadImage(frame: frame)
-            ?? NSImage(systemSymbolName: "pawprint.fill", accessibilityDescription: "Lovely Pet")
+
+        if currentImage == nil {
+            NSLog("Failed to load PNG pet frame: \(frame)")
+        }
     }
 
     private func loadImage(frame: String) -> NSImage? {
-        guard let url = PetResourceLocator.imageURL(petID: manifest.id, relativePath: frame) else { return nil }
+        guard frame.lowercased().hasSuffix(".png") else {
+            NSLog("Ignoring non-PNG pet frame: \(frame)")
+            return nil
+        }
+
+        guard let url = PetResourceLocator.imageURL(petID: manifest.id, relativePath: frame) else {
+            NSLog("Missing PNG pet frame: \(frame)")
+            return nil
+        }
+
         let cacheKey = url as NSURL
 
         if let cachedImage = Self.decodedImageCache.object(forKey: cacheKey) {
             return cachedImage
         }
 
-        let image: NSImage?
-        if url.pathExtension.lowercased() == "b64" {
-            image = Self.loadBase64EncodedImage(from: url)
-        } else {
-            image = NSImage(contentsOf: url)
-        }
-
+        let image = NSImage(contentsOf: url)
         if let image {
             Self.decodedImageCache.setObject(image, forKey: cacheKey)
         }
         return image
-    }
-
-    private static func loadBase64EncodedImage(from url: URL) -> NSImage? {
-        guard
-            let encoded = try? String(contentsOf: url, encoding: .utf8),
-            let data = Data(base64Encoded: encoded, options: .ignoreUnknownCharacters)
-        else {
-            return nil
-        }
-        return NSImage(data: data)
     }
 }

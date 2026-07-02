@@ -1,35 +1,9 @@
 # Getting Started
 
-## 1. Run the sample pet from terminal
+Use `make validate` before running or packaging the macOS template.
 
-```bash
-make validate
-make run
-```
+Use `make run` to launch the sample locally, `make xcode` to open the Swift package in Xcode, and `make package` to build the app bundle.
 
-## 2. Open in Xcode
+The included sample uses the `imageAssets` renderer and transparent PNG frame sequences declared in `pet.json`.
 
-```bash
-make xcode
-```
-
-Then select the `LovelyPetApp` scheme and run on `My Mac`. See `docs/XCODE_DEBUGGING.md` for the full debugging workflow.
-
-## 3. Package the app
-
-```bash
-make package
-open "templates/macos-desktop-pet/dist/Lovely Pet.app"
-```
-
-The sample is a native macOS desktop pet. It uses a procedural ragdoll cat renderer, so it runs immediately without external image assets.
-
-## 4. Customize the pet
-
-Edit:
-
-```text
-templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json
-```
-
-Change the name, scale, animation states, and resource references. Run `make validate` after every edit.
+To customize the sample, edit `templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json`, update the PNG frame references, and run `make validate` again.

@@ -5,9 +5,9 @@ This document describes what the packaged macOS app does on a local machine and 
 ## What the app does
 
 - Runs as a normal user-space macOS app.
-- Shows a transparent floating desktop pet window.
+- Shows a transparent floating desktop window.
 - Adds a menu bar item with Settings and Quit controls.
-- Uses SwiftUI drawing for the sample pet; no external renderer process is started.
+- Loads transparent PNG frames from bundled resources; no external renderer process is started.
 - Uses `UserDefaults` for small local preferences.
 - Does not install a LaunchAgent, daemon, login item, kernel extension, browser extension, or background service.
 - Does not require Node, Python, or any runtime after the app is packaged.
@@ -52,8 +52,8 @@ You can also use Settings -> Reset Stored Data before deleting the app.
 
 ## Performance safeguards
 
-- Procedural animation uses a periodic timeline capped at 24 updates per second instead of display-refresh continuous animation.
-- macOS Reduce Motion is respected; when Reduce Motion is enabled, breathing and tail motion are reduced.
+- PNG frame playback uses per-state FPS timers from `pet.json`.
+- macOS Reduce Motion is respected for lightweight transform effects around the image frames.
 - The image frame timer is disabled when no frame assets are present or when a looping state has only one frame.
 - The idle sleep check runs only once every 10 seconds.
 
