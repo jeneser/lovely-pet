@@ -12,7 +12,10 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "LovelyPetApp",
-            resources: [.process("Resources")]
+            // Copy the resource folder as a hierarchy. Frame sequences reuse
+            // names like 0001.png in different state directories, which
+            // SwiftPM's .process rule treats as duplicate resource names.
+            resources: [.copy("Resources")]
         )
     ]
 )
