@@ -9,11 +9,21 @@ def fail(message: str) -> None:
     raise SystemExit(1)
 
 
+def split_frame_reference(frame: str) -> tuple[str, str | None]:
+    path, separator, fragment = frame.partition("#")
+    if not path.strip():
+        fail("frame path before # must be non-empty")
+    if separator and (not fragment.isdigit() or int(fragment) < 0):
+        fail(f"sprite frame index must be a non-negative integer: {frame}")
+    return path, fragment if separator else None
+
+
 def validate_relative_png_frame(pet_root: Path, state_name: str, frame: object) -> None:
     if not isinstance(frame, str) or not frame.strip():
         fail(f"state {state_name}: every frame must be a non-empty PNG path")
 
-    frame_path = Path(frame)
+    frame_base, _ = split_frame_reference(frame)
+    frame_path = Path(frame_base)
     if frame_path.is_absolute() or ".." in frame_path.parts:
         fail(f"state {state_name}: frame path must stay inside the pet folder: {frame}")
 

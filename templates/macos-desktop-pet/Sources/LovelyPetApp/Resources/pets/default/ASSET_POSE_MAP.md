@@ -1,40 +1,19 @@
 # Cat desktop pet asset pose map
 
-This asset set replaces the default placeholder frames with high-resolution transparent PNG images. The runtime keeps images in PNG format and uses SwiftUI `scaledToFit()` rendering to avoid stretching.
+Updated default pet animations use transparent PNG sprite sheets generated from the supplied ragdoll-cat references.
 
-## Pose recognition
+Frame groups:
 
-| Runtime file | Recognized pose | Interaction role |
-|---|---|---|
-| `frames/idle/0001-stand.png` | 3/4 standing, eyes open, neutral body | Main idle anchor frame |
-| `frames/idle/0002-blink.png` | Same standing stance, slow blink | Idle blink key frame |
-| `frames/idle/0003-tail-sway.png` | Same standing stance with subtle head/tail variation | Idle tail-sway/breathing key frame |
-| `frames/hover/0001-notice.png` | Attention pose, alert eyes, slight forward curiosity | Hover enter / hover recovery |
-| `frames/hover/0002-paw-probe.png` | One front paw lifted for a soft testing gesture | Hover loop interaction |
-| `frames/tap/0001-startle.png` | Small startled hop/flinch, open mouth | Tap reaction opener |
-| `frames/sleep/0001-loaf.png` | Loaf/resting pose, eyes closed, tail tucked | Sleep state |
-| `refs/gold-standard.png` | Master 3/4 identity reference | Future pose consistency reference |
-| `layered/layered-parts-sheet.png` | Separated rigging parts | Live2D/skeletal-animation reference |
+- idle sheet: 15 cells. Neutral, blink, breathing, tail sway, and settle frames.
+- hover sheet: 8 cells. Notice, ears perk, head tilt, lean, paw probe, paw hold, and recovery frames.
+- tap sheet: 10 cells. Startle, crouch, hop, landing, recovery, and settle frames.
+- sleep sheet: 7 cells. Lower, tuck paws, loaf, breathing, and twitch frames.
 
-## Interaction sequencing
+The manifest now sequences:
 
-```text
-idle:
-  stand -> blink -> stand -> tail-sway -> stand
+- idle: 17 runtime frames.
+- hover: 9 runtime frames.
+- tap: 13 runtime frames.
+- sleep: 8 runtime frames.
 
-hover:
-  notice -> paw-probe -> notice
-
-tap:
-  startle -> paw-probe -> notice -> stand -> idle
-
-sleep:
-  loaf
-```
-
-## Quality notes
-
-- Images are transparent PNG assets.
-- No JPEG conversion is used.
-- No lossy image compression or downsampling is applied to the runtime frames.
-- UI display must keep the existing aspect-ratio-preserving rendering path.
+The runtime crops addressed sprite cells from each sheet before SwiftUI displays them, so the pet keeps the existing image asset renderer while gaining smoother transitions.
