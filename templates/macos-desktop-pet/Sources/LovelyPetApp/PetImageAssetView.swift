@@ -5,6 +5,7 @@ struct PetImageAssetView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var player: FrameAnimationPlayer
     @ObservedObject var interaction: PetInteractionModel
+    let canvasSize: CGSize
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: reduceMotion ? 1.0 : 1.0 / 24.0)) { timeline in
@@ -14,20 +15,20 @@ struct PetImageAssetView: View {
             let hoverLift: CGFloat = interaction.hovering ? -8 : 0
             let tapLift: CGFloat = interaction.tapping ? -18 : 0
             let dragLift: CGFloat = interaction.dragging ? -12 : 0
+            let celebrationProgress = celebrationProgress(at: timeline.date)
 
             ZStack {
                 groundShadow(sleeping: sleeping, breath: breath)
-                petSprite(sleeping: sleeping, breath: breath)
+                petSprite(breath: breath)
                     .offset(y: hoverLift + tapLift + dragLift)
 
                 if interaction.tapping { tapSparkles }
                 if interaction.dragging { dragFeedback }
-                if interaction.celebrating { hearts }
+                if interaction.celebrating { hearts(progress: celebrationProgress) }
                 if let zone = interaction.touchedZone { touchFeedback(zone) }
                 if let message = interaction.message { messageBubble(message) }
-                affectionBadge
             }
-            .frame(width: 280, height: 310)
+            .frame(width: canvasSize.width, height: canvasSize.height)
             .animation(.spring(response: 0.28, dampingFraction: 0.72), value: interaction.hovering)
             .animation(.spring(response: 0.22, dampingFraction: 0.48), value: interaction.tapping)
             .animation(.spring(response: 0.36, dampingFraction: 0.55), value: interaction.celebrating)
@@ -37,9 +38,8 @@ struct PetImageAssetView: View {
         }
     }
 
-    private func petSprite(sleeping: Bool, breath: CGFloat) -> some View {
-        let size = spriteSize(sleeping: sleeping)
-        let breathingScale = reduceMotion ? 1.0 : 1.0 + CGFloat(abs(breath)) * (sleeping ? 0.006 : 0.012)
+    private func petSprite(breath: CGFloat) -> some View {
+        let breathingScale = reduceMotion ? 1.0 : 1.0 + CGFloat(abs(breath)) * 0.010
         let interactionScale = interaction.dragging ? 0.96 : (interaction.tapping ? 1.08 : (interaction.hovering ? 1.04 : 1.0))
         let gazeOffset = CGSize(width: interaction.hovering ? CGFloat(interaction.gazeX) * 8 : 0,
                                 height: interaction.hovering ? -CGFloat(interaction.gazeY) * 5 : 0)
@@ -55,15 +55,16 @@ struct PetImageAssetView: View {
                 Color.clear
             }
         }
-        .frame(width: size.width, height: size.height)
+        .frame(width: canvasSize.width, height: canvasSize.height)
         .scaleEffect(breathingScale * interactionScale, anchor: .bottom)
-        .offset(x: gazeOffset.width, y: gazeOffset.height + (sleeping ? 36 : 0))
+        .offset(x: gazeOffset.width, y: gazeOffset.height)
         .rotationEffect(.degrees(rotation), anchor: .bottom)
         .shadow(color: .black.opacity(player.currentImage == nil ? 0 : 0.18), radius: 8, x: 0, y: 4)
     }
 
-    private func spriteSize(sleeping: Bool) -> CGSize {
-        sleeping ? CGSize(width: 300, height: 190) : CGSize(width: 250, height: 300)
+    private func celebrationProgress(at date: Date) -> CGFloat {
+        let elapsed = date.timeIntervalSince(interaction.celebrationStartedAt)
+        return max(CGFloat(0), min(CGFloat(1), CGFloat(elapsed / 1.25)))
     }
 
     private func groundShadow(sleeping: Bool, breath: CGFloat) -> some View {
@@ -102,12 +103,33 @@ struct PetImageAssetView: View {
         }
     }
 
-    private var hearts: some View {
+    private func hearts(progress: CGFloat) -> some View {
         ZStack {
-            Text("♥").font(.system(size: 22)).foregroundStyle(.pink).offset(x: -60, y: -136)
-            Text("♥").font(.system(size: 18)).foregroundStyle(.pink.opacity(0.8)).offset(x: 112, y: -126)
-            Text("♥").font(.system(size: 14)).foregroundStyle(.pink.opacity(0.7)).offset(x: 132, y: -70)
+            floatingHeart(size: 30, x: -72, y: -112, lift: 78, drift: -24, delay: 0.00, progress: progress)
+            floatingHeart(size: 24, x: -34, y: -138, lift: 88, drift: 18, delay: 0.04, progress: progress)
+            floatingHeart(size: 34, x: 18, y: -126, lift: 96, drift: -10, delay: 0.08, progress: progress)
+            floatingHeart(size: 22, x: 72, y: -118, lift: 76, drift: 28, delay: 0.12, progress: progress)
+            floatingHeart(size: 18, x: 114, y: -72, lift: 68, drift: 24, delay: 0.18, progress: progress)
+            floatingHeart(size: 20, x: -118, y: -62, lift: 64, drift: -20, delay: 0.22, progress: progress)
+            floatingHeart(size: 16, x: 126, y: -12, lift: 52, drift: 16, delay: 0.30, progress: progress)
+            floatingHeart(size: 18, x: -86, y: 8, lift: 58, drift: -18, delay: 0.34, progress: progress)
         }
+    }
+
+    private func floatingHeart(size: CGFloat, x: CGFloat, y: CGFloat, lift: CGFloat, drift: CGFloat, delay: CGFloat, progress: CGFloat) -> some View {
+        let denominator = max(CGFloat(0.01), CGFloat(1) - delay)
+        let local = max(CGFloat(0), min(CGFloat(1), (progress - delay) / denominator))
+        let appear = min(CGFloat(1), local * 4)
+        let fade = CGFloat(1) - local
+        let opacity = Double(appear * fade)
+
+        return Text("♥")
+            .font(.system(size: size, weight: .semibold))
+            .foregroundStyle(.pink.opacity(0.90))
+            .scaleEffect(0.55 + local * 0.85)
+            .rotationEffect(.degrees(Double(drift) * Double(local) * 0.22))
+            .offset(x: x + drift * local, y: y - lift * local)
+            .opacity(opacity)
     }
 
     private func messageBubble(_ text: String) -> some View {
@@ -119,16 +141,5 @@ struct PetImageAssetView: View {
             .clipShape(Capsule())
             .shadow(radius: 2)
             .offset(x: 72, y: -152)
-    }
-
-    private var affectionBadge: some View {
-        Text("♡ \(interaction.affection)")
-            .font(.system(size: 12, weight: .medium))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(.white.opacity(0.65))
-            .clipShape(Capsule())
-            .offset(x: -96, y: -142)
-            .opacity(interaction.affection > 0 ? 1 : 0)
     }
 }
