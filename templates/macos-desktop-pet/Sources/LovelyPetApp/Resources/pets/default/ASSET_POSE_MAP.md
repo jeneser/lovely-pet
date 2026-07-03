@@ -49,3 +49,4 @@ sleep:
 - Existing key poses are preserved as addressed subframes and supplemented with at least three transition subframes where the original sequence had a state-to-state transition.
 - The manifest keeps `renderer.type` as `imageAssets`.
 - The app window remains `320x340`, matching the sprite subframe canvas.
+- `make validate` checks PNG dimensions directly and fails if a full-frame PNG or sprite-sheet subframe does not match the configured canvas.

@@ -9,42 +9,48 @@ struct PetView: View {
     private let idleTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        GeometryReader { proxy in
-            PetImageAssetView(player: player, interaction: interaction)
-                .frame(width: proxy.size.width, height: proxy.size.height)
-                .contentShape(Rectangle())
-                .background(Color.clear)
-                .onHover { value in
-                    interaction.setHovering(value)
-                    player.handleHover(value)
-                }
-                // onContinuousHover is macOS 13+; the modifier guards internally.
-                .modifier(ContinuousHoverModifier(interaction: interaction, player: player, proxy: proxy))
-                .onTapGesture(count: 2) {
-                    interaction.doubleTap()
-                    player.handleTap()
-                }
-                .onTapGesture {
-                    interaction.tap()
-                    player.handleTap()
-                }
-                .onLongPressGesture(minimumDuration: 0.45) {
-                    interaction.startDragging()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                        interaction.endDragging()
+        let baseSize = settings.baseWindowSize
+        let scaledSize = settings.scaledWindowSize
+
+        PetImageAssetView(player: player, interaction: interaction, canvasSize: baseSize)
+            .frame(width: baseSize.width, height: baseSize.height)
+            .scaleEffect(CGFloat(settings.scale), anchor: .center)
+            .frame(width: scaledSize.width, height: scaledSize.height)
+            .contentShape(Rectangle())
+            .background(Color.clear)
+            .onHover { value in
+                interaction.setHovering(value)
+                player.handleHover(value)
+            }
+            // onContinuousHover is macOS 13+; the modifier guards internally.
+            .modifier(ContinuousHoverModifier(interaction: interaction, player: player, size: scaledSize))
+            .gesture(
+                TapGesture(count: 2)
+                    .onEnded {
+                        interaction.doubleTap()
+                        player.handleTap()
                     }
+                    .exclusively(before: TapGesture().onEnded {
+                        interaction.tap()
+                        player.handleTap()
+                    })
+            )
+            .onLongPressGesture(minimumDuration: 0.45) {
+                interaction.startDragging()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    interaction.endDragging()
                 }
-        }
-        .frame(width: 300 * settings.scale, height: 320 * settings.scale)
-        .background(Color.clear)
-        .onReceive(idleTimer) { _ in
-            interaction.maybeSleep()
-            player.handleSleep(interaction.asleep)
-        }
-        // Use the macOS 12-compatible onChange(of:perform:) overload.
-        .onChange(of: interaction.asleep, perform: { sleeping in
-            player.handleSleep(sleeping)
-        })
+            }
+            .frame(width: scaledSize.width, height: scaledSize.height)
+            .background(Color.clear)
+            .onReceive(idleTimer) { _ in
+                interaction.maybeSleep()
+                player.handleSleep(interaction.asleep)
+            }
+            // Use the macOS 12-compatible onChange(of:perform:) overload.
+            .onChange(of: interaction.asleep, perform: { sleeping in
+                player.handleSleep(sleeping)
+            })
     }
 }
 
@@ -54,7 +60,7 @@ struct PetView: View {
 private struct ContinuousHoverModifier: ViewModifier {
     let interaction: PetInteractionModel
     let player: FrameAnimationPlayer
-    let proxy: GeometryProxy
+    let size: CGSize
 
     @ViewBuilder
     func body(content: Content) -> some View {
@@ -62,7 +68,7 @@ private struct ContinuousHoverModifier: ViewModifier {
             content.onContinuousHover { phase in
                 switch phase {
                 case .active(let location):
-                    interaction.updatePointer(location: location, size: proxy.size)
+                    interaction.updatePointer(location: location, size: size)
                 case .ended:
                     interaction.setHovering(false)
                     player.handleHover(false)

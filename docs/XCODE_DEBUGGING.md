@@ -43,13 +43,12 @@ open templates/macos-desktop-pet/Package.swift
 The app stores small preferences in `UserDefaults`:
 
 ```text
-lovelyPet.app.affection
 lovelyPet.app.scale
 lovelyPet.app.window.x
 lovelyPet.app.window.y
 ```
 
-Use Settings -> Reset Stored Data to clear them while debugging.
+Settings -> Reset Stored Data also clears the legacy `lovelyPet.app.affection` key from older builds.
 
 ## Why there is no checked-in .xcodeproj
 

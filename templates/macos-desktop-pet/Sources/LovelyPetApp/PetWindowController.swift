@@ -1,9 +1,11 @@
 import AppKit
+import Combine
 import SwiftUI
 
 final class PetWindowController: NSWindowController, NSWindowDelegate {
     let settings: PetSettings
     private let player: FrameAnimationPlayer
+    private var scaleCancellable: AnyCancellable?
 
     init(settings: PetSettings, player: FrameAnimationPlayer) {
         self.settings = settings
@@ -14,7 +16,7 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
         hostingView.wantsLayer = true
         hostingView.layer?.backgroundColor = NSColor.clear.cgColor
 
-        let size = NSSize(width: 340, height: 360)
+        let size = settings.scaledWindowSize
         let origin = Self.savedOrigin(width: size.width, height: size.height)
         let window = NSPanel(
             contentRect: NSRect(origin: origin, size: size),
@@ -33,6 +35,13 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
 
         super.init(window: window)
         window.delegate = self
+
+        scaleCancellable = settings.$scale
+            .removeDuplicates()
+            .dropFirst()
+            .sink { [weak self] _ in
+                self?.applyScaleToWindow()
+            }
     }
 
     required init?(coder: NSCoder) {
@@ -48,15 +57,25 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
 
     func showPet() {
         guard let window else { return }
-        let origin = Self.visibleOrigin(for: window.frame)
-        if origin != window.frame.origin {
-            window.setFrameOrigin(origin)
+        let visibleFrame = Self.visibleFrame(for: window.frame)
+        if visibleFrame.origin != window.frame.origin {
+            window.setFrame(visibleFrame, display: true, animate: false)
             savePosition()
         }
         window.orderFrontRegardless()
     }
 
     func windowDidMove(_ notification: Notification) {
+        savePosition()
+    }
+
+    private func applyScaleToWindow() {
+        guard let window else { return }
+        let oldFrame = window.frame
+        let newSize = settings.scaledWindowSize
+        let anchoredOrigin = Self.resizedOrigin(from: oldFrame, newSize: newSize, anchor: settings.manifest.anchor)
+        let resizedFrame = NSRect(origin: anchoredOrigin, size: newSize)
+        window.setFrame(Self.visibleFrame(for: resizedFrame), display: true, animate: false)
         savePosition()
     }
 
@@ -82,11 +101,33 @@ final class PetWindowController: NSWindowController, NSWindowDelegate {
         return NSPoint(x: screen.maxX - width - 80, y: screen.minY + 80)
     }
 
-    private static func visibleOrigin(for frame: NSRect) -> NSPoint {
-        let visibleFrames = NSScreen.screens.map(\.visibleFrame)
-        if visibleFrames.contains(where: { $0.intersects(frame) }) {
-            return frame.origin
+    private static func resizedOrigin(from oldFrame: NSRect, newSize: NSSize, anchor: String) -> NSPoint {
+        switch anchor {
+        case "bottom-right":
+            return NSPoint(x: oldFrame.maxX - newSize.width, y: oldFrame.minY)
+        case "bottom-left":
+            return oldFrame.origin
+        case "top-right":
+            return NSPoint(x: oldFrame.maxX - newSize.width, y: oldFrame.maxY - newSize.height)
+        case "top-left":
+            return NSPoint(x: oldFrame.minX, y: oldFrame.maxY - newSize.height)
+        default:
+            return NSPoint(x: oldFrame.midX - newSize.width / 2, y: oldFrame.midY - newSize.height / 2)
         }
-        return defaultOrigin(width: frame.width, height: frame.height)
+    }
+
+    private static func visibleOrigin(for frame: NSRect) -> NSPoint {
+        visibleFrame(for: frame).origin
+    }
+
+    private static func visibleFrame(for frame: NSRect) -> NSRect {
+        let fallback = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
+        let visibleFrames = NSScreen.screens.map(\.visibleFrame)
+        let target = visibleFrames.first(where: { $0.intersects(frame) }) ?? fallback
+        let maxX = max(target.minX, target.maxX - frame.width)
+        let maxY = max(target.minY, target.maxY - frame.height)
+        let x = min(max(frame.origin.x, target.minX), maxX)
+        let y = min(max(frame.origin.y, target.minY), maxY)
+        return NSRect(x: x, y: y, width: frame.width, height: frame.height)
     }
 }

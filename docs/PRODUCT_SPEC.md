@@ -11,7 +11,7 @@ The project has three surfaces: resource preparation, manifest-driven app config
 - Transparent floating desktop window.
 - Menu bar controls.
 - Hover, click, double-click, long-press, and zone-based touch feedback.
-- Lightweight affection memory.
+- Visual heart-burst reward without affection-count UI.
 - Scale and position persistence.
 - Resource-driven identity.
 
@@ -24,7 +24,7 @@ The runtime switches between idle, hover, tap, and sleep states according to `pe
 1. Load a manifest.
 2. Render a PNG frame-sequence sample through the `imageAssets` renderer.
 3. Support hover, tap, double tap, long press, and touch zones.
-4. Persist scale, position, and affection.
+4. Persist scale and position.
 5. Build a standalone macOS app bundle.
 6. Upload a CI artifact for testing.
 

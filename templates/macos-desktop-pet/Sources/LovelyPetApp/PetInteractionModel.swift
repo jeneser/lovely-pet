@@ -6,9 +6,9 @@ final class PetInteractionModel: ObservableObject {
     @Published var hovering = false
     @Published var tapping = false
     @Published var celebrating = false
+    @Published var celebrationStartedAt = Date.distantPast
     @Published var asleep = false
     @Published var dragging = false
-    @Published var affection = 0
     @Published var gazeX: Double = 0
     @Published var gazeY: Double = 0
     @Published var message: String? = nil
@@ -20,7 +20,6 @@ final class PetInteractionModel: ObservableObject {
     private var resetObserver: NSObjectProtocol?
 
     init() {
-        affection = UserDefaults.standard.integer(forKey: LocalStorageKeys.affection)
         resetObserver = NotificationCenter.default.addObserver(forName: .lovelyPetResetLocalData, object: nil, queue: .main) { [weak self] _ in
             self?.resetInMemoryState()
         }
@@ -35,7 +34,7 @@ final class PetInteractionModel: ObservableObject {
         if dragging { return "startled" }
         if celebrating { return "happy" }
         if hovering { return "curious" }
-        return affection >= 8 ? "trusting" : "calm"
+        return "calm"
     }
 
     func setHovering(_ value: Bool) {
@@ -62,7 +61,7 @@ final class PetInteractionModel: ObservableObject {
         if let location = lastPointerLocation, let size = lastPointerSize {
             tap(at: location, size: size)
         } else {
-            react(zone: nil, affectionGain: 1, fallbackMessage: affection % 5 == 4 ? "喵～" : nil)
+            react(zone: nil, fallbackMessage: nil)
         }
     }
 
@@ -70,25 +69,24 @@ final class PetInteractionModel: ObservableObject {
         let zone = classify(location: location, size: size)
         switch zone {
         case "head":
-            react(zone: zone, affectionGain: 2, fallbackMessage: "摸摸头")
+            react(zone: zone, fallbackMessage: "摸摸头")
         case "tail":
-            react(zone: zone, affectionGain: 1, fallbackMessage: "尾巴！")
+            react(zone: zone, fallbackMessage: "尾巴！")
         case "paw":
-            react(zone: zone, affectionGain: 2, fallbackMessage: "握爪")
+            react(zone: zone, fallbackMessage: "握爪")
         default:
-            react(zone: zone, affectionGain: 1, fallbackMessage: affection % 5 == 4 ? "呼噜～" : nil)
+            react(zone: zone, fallbackMessage: nil)
         }
     }
 
     func doubleTap() {
-        wake(reason: "喜欢你")
-        affection = min(99, affection + 3)
-        persistAffection()
+        wake(reason: nil)
         celebrating = true
-        message = "喜欢你"
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+        celebrationStartedAt = Date()
+        message = nil
+        touchedZone = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.25) { [weak self] in
             self?.celebrating = false
-            self?.message = nil
         }
     }
 
@@ -100,8 +98,6 @@ final class PetInteractionModel: ObservableObject {
     func endDragging() {
         dragging = false
         message = nil
-        affection = min(99, affection + 1)
-        persistAffection()
     }
 
     func maybeSleep() {
@@ -113,10 +109,8 @@ final class PetInteractionModel: ObservableObject {
         }
     }
 
-    private func react(zone: String?, affectionGain: Int, fallbackMessage: String?) {
+    private func react(zone: String?, fallbackMessage: String?) {
         wake(reason: nil)
-        affection = min(99, affection + affectionGain)
-        persistAffection()
         tapping = true
         touchedZone = zone
         message = fallbackMessage
@@ -143,12 +137,7 @@ final class PetInteractionModel: ObservableObject {
         if let reason { message = reason }
     }
 
-    private func persistAffection() {
-        UserDefaults.standard.set(affection, forKey: LocalStorageKeys.affection)
-    }
-
     private func resetInMemoryState() {
-        affection = 0
         hovering = false
         tapping = false
         celebrating = false
@@ -158,6 +147,7 @@ final class PetInteractionModel: ObservableObject {
         gazeY = 0
         message = nil
         touchedZone = nil
+        celebrationStartedAt = Date.distantPast
         lastInteractionAt = Date()
     }
 }
