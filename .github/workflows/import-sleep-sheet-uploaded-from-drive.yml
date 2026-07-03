@@ -1,0 +1,47 @@
+name: Import uploaded sleep sheet from Drive
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/import-sleep-sheet-uploaded-from-drive.yml
+      - pipeline/scripts/import_sleep_sheet_uploaded_from_drive.py
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  import-sleep-sheet:
+    if: github.actor != 'github-actions[bot]' && github.event.pull_request.head.ref == 'codex/replace-sleep-sheet-uploaded-20260703'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: codex/replace-sleep-sheet-uploaded-20260703
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install image tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pillow numpy opencv-python-headless
+
+      - name: Import and validate sleep sheet
+        run: python pipeline/scripts/import_sleep_sheet_uploaded_from_drive.py
+
+      - name: Validate pet manifest
+        run: python pipeline/scripts/validate-pet-manifest.py templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json
+
+      - name: Commit imported sleep sheet and cleanup
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Replace sleep sheet with uploaded Drive image
+          branch: codex/replace-sleep-sheet-uploaded-20260703
+          file_pattern: templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/frames/sleep/sleep-sheet.png .github/workflows/import-sleep-sheet-uploaded-from-drive.yml pipeline/scripts/import_sleep_sheet_uploaded_from_drive.py
