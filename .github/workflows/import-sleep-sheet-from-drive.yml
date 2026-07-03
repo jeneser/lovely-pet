@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/import-sleep-sheet-from-drive.yml
-      - pipeline/scripts/import-sleep-sheet-from-drive.sh
+      - pipeline/scripts/import-sleep-sheet-from-drive.py
   workflow_dispatch:
 
 jobs:
@@ -13,4 +13,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: bash pipeline/scripts/import-sleep-sheet-from-drive.sh
+      - run: python3 pipeline/scripts/import-sleep-sheet-from-drive.py
