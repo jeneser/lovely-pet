@@ -128,7 +128,12 @@ final class FrameAnimationPlayer: ObservableObject {
             NSLog("Failed to decode sprite sheet for frame: \(frameName)")
             return nil
         }
-        let cropRect = CGRect(x: frameIndex * frameWidth, y: 0, width: frameWidth, height: frameHeight)
+        let cropRect = CGRect(
+            x: CGFloat(frameIndex * frameWidth),
+            y: 0,
+            width: CGFloat(frameWidth),
+            height: CGFloat(frameHeight)
+        )
         guard cropRect.maxX <= CGFloat(cgImage.width), cropRect.maxY <= CGFloat(cgImage.height) else {
             NSLog("Sprite frame is outside sheet bounds: \(frameName)")
             return nil
@@ -137,7 +142,7 @@ final class FrameAnimationPlayer: ObservableObject {
             NSLog("Failed to crop sprite frame: \(frameName)")
             return nil
         }
-        return NSImage(cgImage: cropped, size: NSSize(width: frameWidth, height: frameHeight))
+        return NSImage(cgImage: cropped, size: NSSize(width: CGFloat(frameWidth), height: CGFloat(frameHeight)))
     }
 }
 
