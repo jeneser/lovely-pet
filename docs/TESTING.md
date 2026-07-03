@@ -17,18 +17,18 @@ make package
 - Pet window is transparent and floating.
 - Pet can be dragged to a new position.
 - Pet position persists after restarting the app.
-- Menu bar Reset Position moves the pet back to the default area.
+- Status bar menu shows Settings and Quit.
+- Settings opens from the status bar menu.
 - Hover makes the pet lift, look alive, and track the cursor.
 - Clicking the head, tail, paws, and body shows different visual feedback.
 - Tap makes the pet visibly react and then return to idle.
-- Double tap shows stronger heart-burst feedback without showing a text bubble such as “喜欢你”.
+- Double tap shows stronger heart-burst feedback without showing a text bubble.
 - Tap and double tap do not show or persist an affection/heart count.
-- Long press triggers the hold/startled reaction.
+- Long press or drag triggers the hold/startled reaction.
 - Scale can be changed from Settings and persists after restart.
 - Changing scale resizes the pet image and transparent window together; the pet is not clipped at 0.6x, 1.0x, or 1.8x.
 - Settings -> Reset Stored Data clears saved scale and saved window position.
 - After a quiet period, the pet can enter sleepy visual state.
-- Menu bar item remains available.
 - Quit works from the menu.
 - Packaged app opens from `templates/macos-desktop-pet/dist/Lovely Pet.app`.
 
