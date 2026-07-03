@@ -19,7 +19,7 @@ Done:
 - Persistent scale setting through UserDefaults.
 - Persistent window position through UserDefaults.
 - Settings panel with scale control that resizes the pet view and window together.
-- Menu action to reset position.
+- Status bar menu simplified to Settings and Quit.
 - Long-press hold reaction.
 - Frame-state changes, hearts, sparkles, message bubble, and zone feedback.
 - Removed affection counter display and click-based affection increments.
@@ -30,19 +30,19 @@ Remaining:
 - True drag-specific reaction while moving the window.
 - Treat mini-game.
 
-## 0.3 Asset-backed customer builds
+## 0.3 Asset-backed builds
 
 - Extend the `imageAssets` PNG frame renderer.
-- Customer asset injection script.
+- Asset injection script.
 - QA report generation.
 - Build artifact upload.
 
-## 0.4 Commercial workflow
+## 0.4 Distribution workflow
 
-- Checkout integration.
-- Order dashboard.
+- Release packaging checklist.
 - Build status tracking.
-- Signed and notarized customer downloads.
+- Signed and notarized downloads when needed.
+- Clear install, first-open, quit, and removal guidance.
 
 ## 0.5 Premium animation
 

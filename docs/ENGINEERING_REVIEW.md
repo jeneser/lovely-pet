@@ -8,18 +8,19 @@ Reviewed the current macOS desktop runtime, manifest loading, settings, packagin
 
 The implementation was checked against a small-diff engineering rule set: reuse native macOS and SwiftUI features, avoid new dependencies, keep interaction logic centralized, and prefer the smallest change that fixes the actual flow.
 
-## Fixes made
+## Current implementation facts
 
-- Kept the visible character backed by PNG frames loaded from `pet.json`.
-- Centralized interaction state in `PetInteractionModel` instead of scattering sleep, gaze, touch, and celebration state through the view.
-- Removed click-based affection increments and the affection badge UI.
-- Kept double-click feedback visual-only by replacing text feedback with a stronger heart burst.
-- Persisted scale with `UserDefaults`, using native platform storage rather than adding a database or config layer.
-- Persisted window position in `PetWindowController`, where the real window movement occurs.
-- Resized the pet NSPanel when scale changes so the PNG pet view and transparent window scale together.
-- Added app bundle resource fallback in `PetManifest` so packaged app resources can be read from `Bundle.main`.
-- Added menu actions for showing and resetting the window position.
-- Added manifest checks so states must reference existing PNG frame files with dimensions matching the configured sprite canvas.
+- The visible character is backed by PNG frames loaded from `pet.json`.
+- `PetInteractionModel` centralizes hover, tap, celebration, sleep, drag, gaze, message, and touched-zone state.
+- Click-based affection increments and affection badge UI are not part of the current runtime.
+- Double-click feedback is visual-only and uses a stronger heart burst instead of text feedback.
+- Scale is persisted with `UserDefaults`.
+- Window position is persisted in `PetWindowController`, where the real window movement occurs.
+- Scale changes resize the transparent NSPanel so the PNG pet view and interaction viewport scale together.
+- `PetManifest` supports packaged-app resource lookup and source-tree resource lookup.
+- The status bar item uses a single icon and exposes Settings and Quit menu items.
+- Settings includes scale controls and a Reset Stored Data action.
+- Manifest checks require states to reference existing PNG frame files with dimensions matching the configured sprite canvas.
 
 ## Remaining risks
 

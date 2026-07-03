@@ -28,7 +28,7 @@ open templates/macos-desktop-pet/Package.swift
 2. Select `My Mac` as the destination.
 3. Press `Run`.
 4. The app runs as a menu-bar accessory app, so look for the paw icon in the macOS menu bar.
-5. Use the menu-bar item to open Settings, reset position, or quit.
+5. Use the menu-bar item to open Settings or quit the app.
 
 ## Debugging notes
 
