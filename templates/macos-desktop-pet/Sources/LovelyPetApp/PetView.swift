@@ -9,13 +9,15 @@ struct PetView: View {
     private let idleTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        let baseSize = settings.baseWindowSize
+        let assetCanvasSize = settings.baseWindowSize
+        let viewportSize = settings.viewportWindowSize
         let scaledSize = settings.scaledWindowSize
 
-        PetImageAssetView(player: player, interaction: interaction, canvasSize: baseSize)
-            .frame(width: baseSize.width, height: baseSize.height)
-            .scaleEffect(CGFloat(settings.scale), anchor: .center)
-            .frame(width: scaledSize.width, height: scaledSize.height)
+        PetImageAssetView(player: player, interaction: interaction, canvasSize: assetCanvasSize)
+            .frame(width: assetCanvasSize.width, height: assetCanvasSize.height)
+            .frame(width: viewportSize.width, height: viewportSize.height, alignment: .bottom)
+            .scaleEffect(CGFloat(settings.scale), anchor: .bottom)
+            .frame(width: scaledSize.width, height: scaledSize.height, alignment: .bottom)
             .contentShape(Rectangle())
             .background(Color.clear)
             .onHover { value in
