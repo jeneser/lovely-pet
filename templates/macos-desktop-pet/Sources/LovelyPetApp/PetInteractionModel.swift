@@ -69,7 +69,7 @@ final class PetInteractionModel: ObservableObject {
         let zone = classify(location: location, size: size)
         switch zone {
         case "head":
-            react(zone: zone, fallbackMessage: "摸摸头")
+            react(zone: zone, fallbackMessage: nil)
         case "tail":
             react(zone: zone, fallbackMessage: "尾巴！")
         case "paw":
