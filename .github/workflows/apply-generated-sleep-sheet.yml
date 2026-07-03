@@ -1,0 +1,184 @@
+name: Apply generated sleep sheet
+
+on:
+  push:
+    branches:
+      - fix-sleep-transition-sheet
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply-generated-sleep-sheet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install image processing dependencies
+        run: python -m pip install --upgrade pillow numpy scipy requests
+
+      - name: Download generated source image from Drive
+        env:
+          DRIVE_FILE_ID: 1IDWuVhTXlfPau3zrSDUj8WNc_7DQkV2O
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          import requests
+
+          file_id = os.environ["DRIVE_FILE_ID"]
+          session = requests.Session()
+          url = "https://drive.usercontent.google.com/download"
+          params = {"id": file_id, "export": "download", "confirm": "t"}
+          response = session.get(url, params=params, timeout=120)
+          response.raise_for_status()
+          content_type = response.headers.get("content-type", "")
+          data = response.content
+          if b"<!DOCTYPE html" in data[:2048] or b"<html" in data[:2048].lower():
+              raise RuntimeError(
+                  "Google Drive returned an HTML page instead of the PNG bytes. "
+                  "Make the Drive file public to anyone with the link, then rerun this workflow."
+              )
+          if not data.startswith(b"\x89PNG\r\n\x1a\n"):
+              raise RuntimeError(f"Downloaded file is not a PNG; content-type={content_type!r}, first bytes={data[:16]!r}")
+          Path("/tmp/generated-sleep-source.png").write_bytes(data)
+          print(f"downloaded /tmp/generated-sleep-source.png: {len(data)} bytes")
+          PY
+
+      - name: Build transparent 7-frame sleep sheet and update manifest
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import numpy as np
+          from PIL import Image, ImageFilter, ImageDraw, ImageChops
+          from scipy import ndimage as ndi
+
+          ROOT = Path.cwd()
+          SOURCE = Path("/tmp/generated-sleep-source.png")
+          TARGET = ROOT / "templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/frames/sleep/sleep-sheet.png"
+          MANIFEST = ROOT / "templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json"
+          CELL_W, CELL_H, FRAMES = 320, 340, 7
+
+          src = Image.open(SOURCE).convert("RGB")
+          arr = np.array(src).astype(np.int16)
+          mx = arr.max(axis=2)
+          mn = arr.min(axis=2)
+          chroma = mx - mn
+          mean = arr.mean(axis=2)
+
+          # The generated source is a transparent-preview checkerboard rendered into RGB.
+          # Keep the cat pixels and remove the checkerboard preview pixels to restore true alpha.
+          mask = (mean < 239) | (chroma > 7)
+          gray = np.array(src.convert("L")).astype(np.int16)
+          sx = ndi.sobel(gray, axis=1)
+          sy = ndi.sobel(gray, axis=0)
+          edges = ((sx * sx + sy * sy) ** 0.5) > 18
+          mask |= ndi.binary_dilation(edges, iterations=1) & (mean < 253)
+          mask = ndi.binary_opening(mask, iterations=1)
+          mask = ndi.binary_closing(mask, iterations=3)
+
+          labels, count = ndi.label(mask)
+          sizes = np.bincount(labels.ravel())
+          if len(sizes):
+              sizes[0] = 0
+
+          components = []
+          for label, size in enumerate(sizes):
+              if label == 0 or size <= 1000:
+                  continue
+              comp = labels == label
+              comp = ndi.binary_closing(comp, iterations=2)
+              comp = ndi.binary_fill_holes(comp)
+              comp = ndi.binary_dilation(comp, iterations=1)
+              ys, xs = np.where(comp)
+              if not len(xs):
+                  continue
+              components.append((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1, comp))
+          components.sort(key=lambda item: item[0])
+          if len(components) != FRAMES:
+              raise AssertionError(f"expected {FRAMES} cat components, found {len(components)}")
+
+          sheet = Image.new("RGBA", (CELL_W * FRAMES, CELL_H), (0, 0, 0, 0))
+          bboxes = []
+          for frame_index, (x0, y0, x1, y1, comp) in enumerate(components):
+              pad = 6
+              cx0 = max(0, int(x0) - pad)
+              cy0 = max(0, int(y0) - pad)
+              cx1 = min(src.width, int(x1) + pad)
+              cy1 = min(src.height, int(y1) + pad)
+
+              rgba = src.crop((cx0, cy0, cx1, cy1)).convert("RGBA")
+              comp_crop = comp[cy0:cy1, cx0:cx1]
+              alpha = Image.fromarray((comp_crop.astype(np.uint8) * 255), "L").filter(ImageFilter.GaussianBlur(0.8))
+              alpha_arr = np.array(alpha)
+              alpha_arr[alpha_arr < 22] = 0
+              alpha_arr[alpha_arr > 235] = 255
+              alpha = Image.fromarray(alpha_arr.astype(np.uint8), "L")
+              rgba.putalpha(alpha)
+
+              bbox = rgba.getbbox()
+              if bbox is None:
+                  raise AssertionError(f"frame {frame_index} is empty")
+              crop = rgba.crop(bbox)
+              max_w, max_h = 306, 285
+              scale = min(max_w / crop.width, max_h / crop.height, 1.0)
+              if scale < 1.0:
+                  crop = crop.resize((round(crop.width * scale), round(crop.height * scale)), Image.Resampling.LANCZOS)
+              px = frame_index * CELL_W + (CELL_W - crop.width) // 2
+              py = 314 - crop.height
+              sheet.alpha_composite(crop, (px, py))
+              bboxes.append((frame_index, px, py, crop.width, crop.height))
+
+          TARGET.parent.mkdir(parents=True, exist_ok=True)
+          # Store the sheet as a full-resolution RGBA PNG with no PNG compression setting.
+          # This avoids any lossy compression or downsampling.
+          sheet.save(TARGET, format="PNG", compress_level=0)
+
+          manifest = json.loads(MANIFEST.read_text())
+          manifest["states"]["sleep"]["fps"] = 2
+          manifest["states"]["sleep"]["loop"] = True
+          manifest["states"]["sleep"]["frames"] = [
+              "frames/sleep/sleep-sheet.png#0",
+              "frames/sleep/sleep-sheet.png#1",
+              "frames/sleep/sleep-sheet.png#2",
+              "frames/sleep/sleep-sheet.png#3",
+              "frames/sleep/sleep-sheet.png#4",
+              "frames/sleep/sleep-sheet.png#5",
+              "frames/sleep/sleep-sheet.png#6",
+              "frames/sleep/sleep-sheet.png#6",
+          ]
+          MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
+
+          out = Image.open(TARGET).convert("RGBA")
+          assert out.size == (CELL_W * FRAMES, CELL_H), out.size
+          alpha = out.getchannel("A")
+          assert alpha.getextrema()[1] == 255
+          for idx in range(FRAMES):
+              crop = out.crop((idx * CELL_W, 0, (idx + 1) * CELL_W, CELL_H))
+              if crop.getbbox() is None:
+                  raise AssertionError(f"frame {idx} is empty")
+          compressed_check = Path("/tmp/lossless-check.png")
+          out.save(compressed_check, format="PNG", compress_level=9)
+          assert ImageChops.difference(out, Image.open(compressed_check).convert("RGBA")).getbbox() is None
+          print("wrote", TARGET)
+          print("frame bboxes", bboxes)
+          PY
+
+      - name: Remove temporary workflow
+        run: rm -f .github/workflows/apply-generated-sleep-sheet.yml
+
+      - name: Commit generated asset changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/frames/sleep/sleep-sheet.png \
+                  templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json \
+                  .github/workflows/apply-generated-sleep-sheet.yml
+          git status --short
+          git commit -m "Use generated sleep transition sheet"
+          git push
