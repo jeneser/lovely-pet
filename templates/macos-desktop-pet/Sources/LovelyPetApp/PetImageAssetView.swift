@@ -39,8 +39,8 @@ struct PetImageAssetView: View {
     }
 
     private func petSprite(breath: CGFloat) -> some View {
-        let breathingScale = reduceMotion ? 1.0 : 1.0 + CGFloat(abs(breath)) * 0.010
-        let interactionScale = interaction.dragging ? 0.96 : (interaction.tapping ? 1.08 : (interaction.hovering ? 1.04 : 1.0))
+        let breathingScale: CGFloat = reduceMotion ? 1.0 : 1.0 + CGFloat(abs(breath)) * 0.010
+        let interactionScale: CGFloat = interaction.dragging ? 0.96 : (interaction.tapping ? 1.08 : (interaction.hovering ? 1.04 : 1.0))
         let gazeOffset = CGSize(width: interaction.hovering ? CGFloat(interaction.gazeX) * 8 : 0,
                                 height: interaction.hovering ? -CGFloat(interaction.gazeY) * 5 : 0)
         let rotation = interaction.dragging ? Double(interaction.gazeX * 8) : (interaction.tapping ? -4 : (interaction.hovering ? Double(interaction.gazeX * 3) : 0))
