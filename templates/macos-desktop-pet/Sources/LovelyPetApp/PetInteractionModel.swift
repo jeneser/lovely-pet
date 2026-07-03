@@ -91,7 +91,7 @@ final class PetInteractionModel: ObservableObject {
     }
 
     func startDragging() {
-        wake(reason: "放我下来")
+        wake(reason: nil)
         dragging = true
     }
 
