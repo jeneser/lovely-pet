@@ -30,33 +30,40 @@ final class LovelyPetApplication: NSObject, NSApplicationDelegate {
     }
 
     private func setupStatusItem() {
-        let item = NSStatusBar.system.statusItem(withLength: 128)
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         item.isVisible = true
-        item.button?.title = "Lovely Pet 🐾"
-        item.button?.toolTip = "Lovely Pet is running"
+        configureStatusButton(item.button)
 
         let menu = NSMenu()
-        menu.addItem(menuItem(title: "Show Pet", action: #selector(showPet)))
-        menu.addItem(menuItem(title: "Reset Position", action: #selector(resetPosition), keyEquivalent: "r"))
-        menu.addItem(menuItem(title: "Settings", action: #selector(openSettings), keyEquivalent: ","))
+        menu.addItem(menuItem(title: "Settings", action: #selector(openSettings), keyEquivalent: ",", systemImageName: "gearshape"))
         menu.addItem(.separator())
-        menu.addItem(menuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
+        menu.addItem(menuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q", systemImageName: "power"))
         item.menu = menu
         statusItem = item
     }
 
-    private func menuItem(title: String, action: Selector, keyEquivalent: String = "") -> NSMenuItem {
+    private func configureStatusButton(_ button: NSStatusBarButton?) {
+        guard let button else { return }
+        button.title = ""
+        button.toolTip = "Pet controls"
+
+        if let image = NSImage(systemSymbolName: "pawprint.fill", accessibilityDescription: "Pet controls") {
+            image.isTemplate = true
+            button.image = image
+            button.imagePosition = .imageOnly
+        } else {
+            button.title = "🐾"
+        }
+    }
+
+    private func menuItem(title: String, action: Selector, keyEquivalent: String = "", systemImageName: String? = nil) -> NSMenuItem {
         let item = NSMenuItem(title: title, action: action, keyEquivalent: keyEquivalent)
         item.target = self
+        if let systemImageName = systemImageName, let image = NSImage(systemSymbolName: systemImageName, accessibilityDescription: title) {
+            image.isTemplate = true
+            item.image = image
+        }
         return item
-    }
-
-    @objc private func showPet() {
-        windowController?.showPet()
-    }
-
-    @objc private func resetPosition() {
-        windowController?.resetPosition()
     }
 
     @objc private func openSettings() {
