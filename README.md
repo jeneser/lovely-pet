@@ -4,7 +4,7 @@ Lovely Pet is a reusable macOS desktop pet template. It combines pet assets, int
 
 [中文说明](README.zh-CN.md)
 
-The current version works out of the box. After cloning the repository, you can run a ragdoll cat sample immediately. The sample uses manifest-driven transparent PNG image frames from `Resources/pets/default/frames`, with lightweight interactions such as hover, click, double-click, long-press, touch zones, affection memory, scale settings, and a sleepy rhythm.
+The current version works out of the box. After cloning the repository, you can run a ragdoll cat sample immediately. The sample uses manifest-driven transparent PNG image frames from `Resources/pets/default/frames`, with lightweight interactions such as hover, click, double-click heart bursts, long-press, touch zones, scale settings, and a sleepy rhythm.
 
 ## Quick start
 
@@ -33,7 +33,7 @@ GitHub Actions produces downloadable build artifacts for each macOS runner in th
 - Native Swift + AppKit + SwiftUI macOS desktop pet runtime
 - Transparent floating window, menu bar entry, hover, click, double-click, and long-press interactions
 - PNG frame-sequence ragdoll cat sample loaded through `pet.json`
-- Cursor tracking, touch zones, affection memory, sleepy state, persistent scale, and persistent window position
+- Cursor tracking, touch zones, enhanced visual heart bursts, sleepy state, persistent scale, and persistent window position
 - Manifest-based configuration and validation script
 - Xcode debugging support through the Swift Package
 - App packaging workflow and GitHub Actions artifact upload
@@ -63,4 +63,4 @@ examples/ragdoll-demo/         Ragdoll character profile and notes
 
 ## Current focus
 
-The current focus is product feel on top of PNG frame playback: natural hover response, cursor-aware movement, touch-zone feedback, simple affection memory, sleepy rhythm, predictable local state, Xcode-friendly debugging, and stable macOS packaging.
+The current focus is product feel on top of PNG frame playback: natural hover response, cursor-aware movement, touch-zone feedback, stronger non-text double-click visual feedback, sleepy rhythm, predictable local state, Xcode-friendly debugging, and stable macOS packaging.
