@@ -1,0 +1,189 @@
+name: Generate sleep transition sheet
+
+on:
+  push:
+    branches:
+      - fix-sleep-transition-sheet
+
+permissions:
+  contents: write
+
+jobs:
+  generate-sleep-sheet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Pillow
+        run: python -m pip install --upgrade pillow
+
+      - name: Generate sleep-sheet.png and update manifest order
+        run: |
+          cat > /tmp/generate_sleep_sheet.py <<'PY'
+          from pathlib import Path
+          import json, math
+          from PIL import Image, ImageDraw, ImageChops
+
+          ROOT = Path.cwd()
+          TARGET = ROOT / "templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/frames/sleep/sleep-sheet.png"
+          MANIFEST = ROOT / "templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json"
+
+          CELL_W, CELL_H, FRAMES, S = 320, 340, 7, 4
+          def sc(v): return int(round(v * S))
+          def sxy(p): return tuple(sc(x) for x in p)
+          def lerp(a, b, t): return a + (b - a) * t
+
+          CREAM=(232,222,203,255); LIGHT=(248,244,235,255); WHITE=(255,255,251,255)
+          POINT=(82,63,55,255); POINT_MID=(116,91,78,255); POINT_LIGHT=(151,126,108,255)
+          OUTLINE=(72,57,51,255); SHADOW=(56,44,40,38); BLUE=(106,163,202,255)
+          PINK=(224,130,140,255); WHISKER=(90,76,68,180)
+
+          def ellipse(draw, xy, fill, outline=None, width=1):
+              draw.ellipse(tuple(sc(v) for v in xy), fill=fill, outline=outline, width=sc(width))
+          def polygon(draw, pts, fill, outline=None):
+              p=[sxy(q) for q in pts]
+              draw.polygon(p, fill=fill)
+              if outline:
+                  draw.line(p+[p[0]], fill=outline, width=sc(2), joint="curve")
+          def line(draw, pts, fill, width=1):
+              draw.line([sxy(p) for p in pts], fill=fill, width=sc(width), joint="curve")
+          def rounded(draw, xy, radius, fill, outline=None, width=1):
+              draw.rounded_rectangle(tuple(sc(v) for v in xy), radius=sc(radius), fill=fill, outline=outline, width=sc(width))
+
+          def furry_ellipse(draw, bbox, fill, outline=OUTLINE, width=2, tufts=14, phase=0.0):
+              ellipse(draw, bbox, fill, outline, width)
+              x0,y0,x1,y1=bbox; cx=(x0+x1)/2; cy=(y0+y1)/2; rx=(x1-x0)/2; ry=(y1-y0)/2
+              for i in range(tufts):
+                  ang=2*math.pi*(i/tufts)+phase
+                  if math.sin(ang)>0.88: continue
+                  bx=cx+math.cos(ang)*rx*.97; by=cy+math.sin(ang)*ry*.97
+                  nx,ny=math.cos(ang),math.sin(ang); tx,ty=-ny,nx
+                  base=5 if rx<60 else 6; length=7 if rx<60 else 8
+                  polygon(draw, [(bx+tx*base,by+ty*base),(bx+nx*length,by+ny*length),(bx-tx*base,by-ty*base)], fill)
+
+          def draw_tail(draw, t, breathe=0):
+              stand=[(212,260),(238,226),(234,180),(218,142)]
+              loaf=[(222,262+breathe),(246,264+breathe),(267,246+breathe),(246,224+breathe)]
+              pts=[(lerp(a[0],b[0],t), lerp(a[1],b[1],t)) for a,b in zip(stand,loaf)]
+              line(draw, pts, OUTLINE, 29); line(draw, pts, POINT_MID, 23)
+              for p in pts: ellipse(draw, (p[0]-11.5,p[1]-11.5,p[0]+11.5,p[1]+11.5), POINT_MID)
+              tip=pts[-1]; ellipse(draw, (tip[0]-13,tip[1]-13,tip[0]+13,tip[1]+13), POINT, OUTLINE, 2)
+
+          def sleep_z(draw, frame_idx):
+              if frame_idx < 5: return
+              col=(111,128,150,185); off=0 if frame_idx==5 else 3
+              def z(x,y,s): line(draw, [(x,y),(x+s,y),(x,y+s),(x+s,y+s)], col, 2)
+              z(218+off,120-off,12); z(236+off,100-off,16)
+
+          def frame(t, idx):
+              breathe = -1 if idx==5 else (1 if idx==6 else 0)
+              im=Image.new("RGBA", (CELL_W*S,CELL_H*S), (0,0,0,0)); draw=ImageDraw.Draw(im)
+              shw=lerp(120,190,t); shh=lerp(22,32,t); shx=lerp(160,166,t); shy=302+breathe*.2
+              ellipse(draw, (shx-shw/2,shy-shh/2,shx+shw/2,shy+shh/2), SHADOW)
+              draw_tail(draw, t, breathe)
+
+              bw=lerp(106,182,t); bh=lerp(152,78,t)+(2 if idx==6 else 0); bx=lerp(160,168,t); by=lerp(222,252,t)+breathe
+              furry_ellipse(draw, (bx-bw/2,by-bh/2,bx+bw/2,by+bh/2), CREAM, OUTLINE, 2, 20, .18)
+              if t<.65:
+                  cw=lerp(68,92,t); ch=lerp(104,48,t); cx=lerp(150,154,t); cy=lerp(232,248,t)
+              else:
+                  cw,ch,cx,cy=112,40,154,250+breathe
+              ellipse(draw, (cx-cw/2,cy-ch/2,cx+cw/2,cy+ch/2), WHITE)
+              ellipse(draw, (bx+(22 if t<.85 else 42), by-(28 if t<.85 else 18), bx+(62 if t<.85 else 78), by+(28 if t<.85 else 18)), (207,195,176,205))
+
+              if t<.72:
+                  a=int(255*(1-max(0,t-.55)/.17)); leg=lerp(68,32,min(t/.72,1)); py=286
+                  for lx in (136,168):
+                      rounded(draw, (lx-13,py-leg,lx+13,py+8), 12, (*LIGHT[:3],a), OUTLINE, 2)
+                      ellipse(draw, (lx-17,py-1,lx+18,py+18), (*WHITE[:3],a), OUTLINE, 2)
+                  ellipse(draw, (194,274,226,298), (*POINT_LIGHT[:3],a), OUTLINE, 2)
+              if t>.42:
+                  a=int(255*min(1,(t-.42)/.28))
+                  for lx in (116,148):
+                      ellipse(draw, (lx-19,263+breathe,lx+24,286+breathe), (*WHITE[:3],a), OUTLINE, 2)
+                      line(draw, [(lx-5,279+breathe),(lx+13,279+breathe)], (140,120,105,a), 1)
+
+              hx=lerp(158,124,t); hy=lerp(124,218,t)+breathe; hw=lerp(104,98,t); hh=lerp(88,72,t); er=lerp(0,6,t)
+              le=[(hx-hw*.40,hy-hh*.35),(hx-hw*.29,hy-hh*.88+er),(hx-hw*.10,hy-hh*.42)]
+              re=[(hx+hw*.08,hy-hh*.42),(hx+hw*.31,hy-hh*.88+er),(hx+hw*.42,hy-hh*.32)]
+              polygon(draw, le, POINT_MID, OUTLINE); polygon(draw, re, POINT, OUTLINE)
+              polygon(draw, [(le[0][0]+7,le[0][1]+8),(le[1][0]+2,le[1][1]+14),(le[2][0]-4,le[2][1]+8)], (196,142,139,230))
+              polygon(draw, [(re[0][0]+4,re[0][1]+8),(re[1][0]-2,re[1][1]+14),(re[2][0]-7,re[2][1]+8)], (196,142,139,230))
+              furry_ellipse(draw, (hx-hw/2,hy-hh/2,hx+hw/2,hy+hh/2), LIGHT, OUTLINE, 2, 18, .02)
+              polygon(draw, [(hx-hw*.43,hy-hh*.24),(hx-hw*.20,hy-hh*.50),(hx+hw*.04,hy-hh*.36),(hx+hw*.30,hy-hh*.50),(hx+hw*.43,hy-hh*.18),(hx+hw*.28,hy+hh*.00),(hx+hw*.05,hy-hh*.02),(hx-hw*.18,hy+hh*.02)], POINT_MID)
+              ellipse(draw, (hx+hw*.06,hy-hh*.27,hx+hw*.43,hy+hh*.20), (*POINT[:3],210))
+              polygon(draw, [(hx-hw*.13,hy-hh*.42),(hx+hw*.07,hy-hh*.34),(hx+hw*.13,hy+hh*.02),(hx+hw*.02,hy+hh*.30),(hx-hw*.14,hy+hh*.12),(hx-hw*.21,hy-hh*.14)], WHITE)
+              ellipse(draw, (hx-hw*.30,hy+hh*.02,hx+hw*.02,hy+hh*.35), WHITE)
+              ellipse(draw, (hx-hw*.02,hy+hh*.02,hx+hw*.30,hy+hh*.35), WHITE)
+
+              ey=hy-hh*.07; eyes=[(hx-hw*.18,ey),(hx+hw*.18,ey)]
+              if t<.28:
+                  for ex,eyy in eyes:
+                      ellipse(draw, (ex-8,eyy-6,ex+8,eyy+7), WHITE, OUTLINE, 1); ellipse(draw, (ex-4,eyy-4,ex+5,eyy+5), BLUE); ellipse(draw, (ex+1,eyy-2,ex+3,eyy), WHITE)
+              elif t<.62:
+                  for ex,eyy in eyes:
+                      line(draw, [(ex-9,eyy+1),(ex,eyy+4),(ex+9,eyy+1)], OUTLINE, 2); ellipse(draw, (ex-4,eyy+1,ex+5,eyy+5), BLUE); line(draw, [(ex-9,eyy-1),(ex+9,eyy-1)], OUTLINE, 2)
+              else:
+                  for ex,eyy in eyes: line(draw, [(ex-10,eyy+1),(ex-3,eyy+5),(ex+6,eyy+3),(ex+10,eyy)], OUTLINE, 2)
+
+              ny=hy+hh*.12; polygon(draw, [(hx-5,ny),(hx+5,ny),(hx,ny+6)], PINK, OUTLINE)
+              line(draw, [(hx,ny+6),(hx,ny+13)], OUTLINE, 1); line(draw, [(hx,ny+13),(hx-7,ny+17)], OUTLINE, 1); line(draw, [(hx,ny+13),(hx+7,ny+17)], OUTLINE, 1)
+              wl=lerp(40,30,t)
+              for dy in (-2,5,12):
+                  line(draw, [(hx-8,ny+dy),(hx-wl,ny+dy-6)], WHISKER, 1); line(draw, [(hx+8,ny+dy),(hx+wl,ny+dy-6)], WHISKER, 1)
+              ba=int(220*(1-max(0,t-.42)/.28)) if t<.70 else 0
+              if ba>0:
+                  bx2,by2=hx+8,hy+hh*.50; bc=(37,43,54,ba)
+                  polygon(draw, [(bx2-4,by2),(bx2-20,by2-8),(bx2-18,by2+8)], bc); polygon(draw, [(bx2+4,by2),(bx2+20,by2-8),(bx2+18,by2+8)], bc); ellipse(draw, (bx2-5,by2-5,bx2+5,by2+5), (245,245,245,ba))
+              sleep_z(draw, idx)
+              accent=(151,126,108,110)
+              if t<.65:
+                  line(draw, [(bx-26,by-38),(bx-16,by-8),(bx-28,by+22)], accent, 1); line(draw, [(bx+18,by-44),(bx+28,by-16),(bx+17,by+14)], accent, 1)
+              else:
+                  line(draw, [(bx-42,by-8+breathe),(bx-10,by-18+breathe),(bx+22,by-14+breathe)], accent, 1); line(draw, [(bx-28,by+10+breathe),(bx+8,by+16+breathe),(bx+54,by+4+breathe)], accent, 1)
+              return im.resize((CELL_W,CELL_H), Image.Resampling.LANCZOS)
+
+          tvals=[0.0,0.16,0.34,0.56,0.78,0.92,1.0]
+          sheet=Image.new("RGBA", (CELL_W*FRAMES,CELL_H), (0,0,0,0))
+          for i,t in enumerate(tvals): sheet.alpha_composite(frame(t,i), (i*CELL_W,0))
+          TARGET.parent.mkdir(parents=True, exist_ok=True)
+          sheet.save(TARGET, format="PNG", compress_level=0)
+
+          manifest=json.loads(MANIFEST.read_text())
+          manifest["states"]["sleep"]["frames"]=[
+              "frames/sleep/sleep-sheet.png#0",
+              "frames/sleep/sleep-sheet.png#1",
+              "frames/sleep/sleep-sheet.png#2",
+              "frames/sleep/sleep-sheet.png#3",
+              "frames/sleep/sleep-sheet.png#4",
+              "frames/sleep/sleep-sheet.png#5",
+              "frames/sleep/sleep-sheet.png#6",
+              "frames/sleep/sleep-sheet.png#6"
+          ]
+          MANIFEST.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
+
+          out=Image.open(TARGET)
+          assert out.size==(2240,340), out.size
+          assert out.mode=="RGBA", out.mode
+          for i in range(FRAMES):
+              assert out.crop((i*CELL_W,0,(i+1)*CELL_W,CELL_H)).getbbox(), f"empty frame {i}"
+          before=sheet
+          after=Image.open(TARGET).convert("RGBA")
+          assert ImageChops.difference(before, after).getbbox() is None
+          print(f"generated {TARGET} size={TARGET.stat().st_size} bytes")
+          PY
+          python /tmp/generate_sleep_sheet.py
+
+      - name: Commit generated asset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/fix-sleep-transition-sheet.yml
+          git add templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/frames/sleep/sleep-sheet.png
+          git add templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json
+          git status --short
+          git commit -m "Fix sleep transition sprite sheet"
+          git push origin HEAD:fix-sleep-transition-sheet
