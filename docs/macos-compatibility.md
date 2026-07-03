@@ -1,6 +1,6 @@
 # macOS compatibility coverage
 
-Lovely Pet targets **macOS 12 Monterey and newer**. For this PR, compatibility coverage is tracked explicitly for the following major versions:
+Lovely Pet targets **macOS 12 Monterey and newer**. Compatibility coverage is tracked explicitly for the following major versions:
 
 | Major version | Name | Coverage status | Validation mode |
 |---:|---|---|---|
@@ -74,13 +74,14 @@ open "templates/macos-desktop-pet/dist/Lovely Pet.app"
 After launch, verify:
 
 - the pet window appears without a crash;
-- the status bar item appears;
-- **Show Pet** opens/restores the pet window;
-- **Reset Position** returns the pet to the default position;
+- the status bar item appears as a single pet-control icon;
 - **Settings** opens the settings window;
+- **Quit** exits the app;
 - hover changes the pet state;
-- tap/double-tap triggers the tap animation;
+- tap/double-tap triggers the tap and heart-burst feedback;
 - long press/drag interaction does not crash;
+- scale changes from Settings resize the pet image and window together;
+- Settings -> Reset Stored Data clears saved scale and saved window position;
 - idle sleep transition still works.
 
 Record the result in this table when runtime validation is performed:
