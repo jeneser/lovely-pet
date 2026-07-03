@@ -13,15 +13,28 @@ struct SettingsView: View {
             }
 
             Section("Display") {
-                Slider(value: $settings.scale, in: 0.6...1.8) {
-                    Text("Scale")
-                }
-                HStack {
-                    Text("Scale")
-                    Spacer()
-                    Text("\(settings.scale, specifier: "%.2f")x")
+                VStack(alignment: .leading, spacing: 8) {
+                    Slider(value: $settings.scale, in: 0.6...1.8, step: 0.05) {
+                        Text("Scale")
+                    }
+
+                    HStack {
+                        Text("Pet Scale")
+                        Spacer()
+                        Text("\(settings.scale, specifier: "%.2f")x")
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Text("Resizes the PNG pet canvas and transparent window together so enlarged frames are not clipped.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Text("Canvas: \(Int(settings.scaledWindowSize.width)) × \(Int(settings.scaledWindowSize.height)) px")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+
                 Button("Reset Scale") {
                     settings.resetScale()
                 }
@@ -31,12 +44,12 @@ struct SettingsView: View {
                 Button("Reset Stored Data") {
                     settings.resetLocalData()
                 }
-                Text("Clears affection, saved scale, and saved window position from UserDefaults.")
+                Text("Clears saved scale, saved window position, and any legacy affection counter from UserDefaults.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
         .padding()
-        .frame(width: 420, height: 340)
+        .frame(width: 460, height: 380)
     }
 }
