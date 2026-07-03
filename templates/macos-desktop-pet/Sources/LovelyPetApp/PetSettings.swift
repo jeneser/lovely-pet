@@ -3,10 +3,20 @@ import Combine
 import CoreGraphics
 
 final class PetSettings: ObservableObject {
+    static let minimumScale = 0.6
+    static let maximumScale = 1.8
+    private static let viewportMargin = CGSize(width: 70, height: 90)
+
     let manifest: PetManifest
 
     @Published var scale: Double {
-        didSet { UserDefaults.standard.set(scale, forKey: LocalStorageKeys.scale) }
+        didSet {
+            let clamped = Self.clampedScale(scale)
+            if scale != clamped {
+                scale = clamped
+            }
+            UserDefaults.standard.set(scale, forKey: LocalStorageKeys.scale)
+        }
     }
     @Published var isAlwaysOnTop: Bool = true
     @Published var isClickThroughOutsidePet: Bool = false
@@ -14,7 +24,11 @@ final class PetSettings: ObservableObject {
     init(manifest: PetManifest) {
         self.manifest = manifest
         let savedScale = UserDefaults.standard.double(forKey: LocalStorageKeys.scale)
-        self.scale = savedScale > 0 ? savedScale : manifest.scale
+        self.scale = savedScale > 0 ? Self.clampedScale(savedScale) : Self.clampedScale(manifest.scale)
+    }
+
+    var defaultScale: Double {
+        Self.clampedScale(manifest.scale)
     }
 
     var baseWindowSize: CGSize {
@@ -24,15 +38,23 @@ final class PetSettings: ObservableObject {
         )
     }
 
-    var scaledWindowSize: CGSize {
+    var viewportWindowSize: CGSize {
         CGSize(
-            width: baseWindowSize.width * CGFloat(scale),
-            height: baseWindowSize.height * CGFloat(scale)
+            width: baseWindowSize.width + Self.viewportMargin.width,
+            height: baseWindowSize.height + Self.viewportMargin.height
+        )
+    }
+
+    var scaledWindowSize: CGSize {
+        let safeScale = CGFloat(Self.clampedScale(scale))
+        return CGSize(
+            width: viewportWindowSize.width * safeScale,
+            height: viewportWindowSize.height * safeScale
         )
     }
 
     func resetScale() {
-        scale = manifest.scale
+        scale = defaultScale
     }
 
     func resetLocalData() {
@@ -42,8 +64,13 @@ final class PetSettings: ObservableObject {
             LocalStorageKeys.windowY
         ].forEach { UserDefaults.standard.removeObject(forKey: $0) }
         UserDefaults.standard.removeObject(forKey: "lovelyPet.app.affection")
-        scale = manifest.scale
+        scale = defaultScale
         UserDefaults.standard.removeObject(forKey: LocalStorageKeys.scale)
         NotificationCenter.default.post(name: .lovelyPetResetLocalData, object: nil)
+    }
+
+    static func clampedScale(_ value: Double) -> Double {
+        let finiteValue = value.isFinite ? value : minimumScale
+        return min(max(finiteValue, minimumScale), maximumScale)
     }
 }
