@@ -28,6 +28,7 @@ path.write_text(text)
 PY
 
 python3 pipeline/scripts/validate-pet-manifest.py templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json
+python3 -m pip install --user pillow
 
 python3 - <<'PY'
 from pathlib import Path
