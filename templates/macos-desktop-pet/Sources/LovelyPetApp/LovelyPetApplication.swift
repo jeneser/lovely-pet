@@ -63,7 +63,7 @@ final class LovelyPetApplication: NSObject, NSApplicationDelegate {
         guard let settings = windowController?.settings else { return }
         let view = SettingsView(settings: settings)
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 420, height: 340),
+            contentRect: NSRect(x: 0, y: 0, width: 500, height: 520),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
