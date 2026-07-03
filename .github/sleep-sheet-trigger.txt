@@ -1,2 +1,0 @@
-trigger generated sleep sheet workflow after Drive file was made public
-rerun after workflow file restored
