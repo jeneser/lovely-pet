@@ -103,6 +103,7 @@ final class FrameAnimationPlayer: ObservableObject {
         }
 
         let cacheKey = "\(url.absoluteString)#\(reference.spriteIndex.map(String.init) ?? "full")" as NSString
+
         if let cachedImage = Self.decodedImageCache.object(forKey: cacheKey) {
             return cachedImage
         }
@@ -122,27 +123,35 @@ final class FrameAnimationPlayer: ObservableObject {
     }
 
     private func crop(spriteSheet: NSImage, frameIndex: Int, frameName: String) -> NSImage? {
-        let frameWidth = 72
-        let frameHeight = 76
+        let frameWidth = max(manifest.window.width, 1)
+        let frameHeight = max(manifest.window.height, 1)
+
         guard let cgImage = spriteSheet.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
             NSLog("Failed to decode sprite sheet for frame: \(frameName)")
             return nil
         }
+
         let cropRect = CGRect(
             x: CGFloat(frameIndex * frameWidth),
             y: 0,
             width: CGFloat(frameWidth),
             height: CGFloat(frameHeight)
         )
+
         guard cropRect.maxX <= CGFloat(cgImage.width), cropRect.maxY <= CGFloat(cgImage.height) else {
             NSLog("Sprite frame is outside sheet bounds: \(frameName)")
             return nil
         }
+
         guard let cropped = cgImage.cropping(to: cropRect) else {
             NSLog("Failed to crop sprite frame: \(frameName)")
             return nil
         }
-        return NSImage(cgImage: cropped, size: NSSize(width: CGFloat(frameWidth), height: CGFloat(frameHeight)))
+
+        return NSImage(
+            cgImage: cropped,
+            size: NSSize(width: CGFloat(frameWidth), height: CGFloat(frameHeight))
+        )
     }
 }
 
@@ -153,6 +162,11 @@ private struct FrameReference {
     init(rawValue: String) {
         let parts = rawValue.split(separator: "#", maxSplits: 1, omittingEmptySubsequences: false)
         path = String(parts.first ?? "")
-        spriteIndex = parts.count == 2 ? Int(parts[1]) : nil
+
+        if parts.count == 2, let index = Int(parts[1]), index >= 0 {
+            spriteIndex = index
+        } else {
+            spriteIndex = nil
+        }
     }
 }
