@@ -37,7 +37,7 @@ struct PetManifest: Codable {
     static let placeholder = PetManifest(
         id: "placeholder",
         name: "Lovely Pet",
-        scale: 1.0,
+        scale: 0.6,
         anchor: "bottom-right",
         defaultState: "idle",
         window: Window(width: 320, height: 340),
