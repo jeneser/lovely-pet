@@ -14,7 +14,7 @@ struct PetView: View {
 
         PetImageAssetView(player: player, interaction: interaction, canvasSize: baseSize)
             .frame(width: baseSize.width, height: baseSize.height)
-            .scaleEffect(settings.scale, anchor: .center)
+            .scaleEffect(CGFloat(settings.scale), anchor: .center)
             .frame(width: scaledSize.width, height: scaledSize.height)
             .contentShape(Rectangle())
             .background(Color.clear)
