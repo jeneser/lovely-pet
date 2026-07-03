@@ -79,14 +79,14 @@
       "fps": 2,
       "loop": true,
       "frames": [
+        "frames/sleep/sleep-sheet.png#0",
         "frames/sleep/sleep-sheet.png#1",
         "frames/sleep/sleep-sheet.png#2",
         "frames/sleep/sleep-sheet.png#3",
-        "frames/sleep/sleep-sheet.png#0",
         "frames/sleep/sleep-sheet.png#4",
         "frames/sleep/sleep-sheet.png#5",
         "frames/sleep/sleep-sheet.png#6",
-        "frames/sleep/sleep-sheet.png#0"
+        "frames/sleep/sleep-sheet.png#6"
       ]
     }
   }
