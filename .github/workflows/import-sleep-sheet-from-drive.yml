@@ -1,0 +1,16 @@
+name: Import sleep sheet from Drive
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/import-sleep-sheet-from-drive.yml
+      - pipeline/scripts/import-sleep-sheet-from-drive.sh
+  workflow_dispatch:
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash pipeline/scripts/import-sleep-sheet-from-drive.sh
