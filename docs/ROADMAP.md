@@ -14,16 +14,15 @@
 Done:
 
 - Cursor-aware movement.
-- Double-click special reaction.
+- Double-click special heart-burst reaction.
 - Idle timeout to sleep.
-- Affection counter.
-- Persistent affection through UserDefaults.
 - Persistent scale setting through UserDefaults.
 - Persistent window position through UserDefaults.
-- Settings panel with scale control.
+- Settings panel with scale control that resizes the pet view and window together.
 - Menu action to reset position.
 - Long-press hold reaction.
 - Frame-state changes, hearts, sparkles, message bubble, and zone feedback.
+- Removed affection counter display and click-based affection increments.
 
 Remaining:
 
