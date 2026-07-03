@@ -18,11 +18,12 @@ This document describes what the packaged macOS app does on a local machine and 
 The app stores only small preference values through `UserDefaults`:
 
 ```text
-lovelyPet.app.affection
 lovelyPet.app.scale
 lovelyPet.app.window.x
 lovelyPet.app.window.y
 ```
+
+Older builds may have written `lovelyPet.app.affection`; Settings -> Reset Stored Data removes that legacy key as cleanup, but the current runtime no longer uses it.
 
 With the current bundle identifier, macOS stores these values in the app preferences domain:
 
