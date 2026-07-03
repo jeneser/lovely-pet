@@ -8,11 +8,17 @@ struct PetManifest: Codable {
         let nextState: String?
     }
 
+    struct Window: Codable {
+        let width: Int
+        let height: Int
+    }
+
     let id: String
     let name: String
     let scale: Double
     let anchor: String
     let defaultState: String
+    let window: Window
     let states: [String: State]
 
     static func loadDefault() -> PetManifest {
@@ -34,6 +40,7 @@ struct PetManifest: Codable {
         scale: 1.0,
         anchor: "bottom-right",
         defaultState: "idle",
+        window: Window(width: 320, height: 340),
         states: [
             "idle": State(fps: 12, loop: true, frames: [], nextState: nil)
         ]

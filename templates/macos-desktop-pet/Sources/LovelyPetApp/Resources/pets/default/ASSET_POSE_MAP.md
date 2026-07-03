@@ -1,40 +1,51 @@
 # Cat desktop pet asset pose map
 
-This asset set replaces the default placeholder frames with high-resolution transparent PNG images. The runtime keeps images in PNG format and uses SwiftUI `scaledToFit()` rendering to avoid stretching.
+This asset set uses transparent PNG sprite sheets generated from the supplied ragdoll-cat references. Every subframe is normalized to the app window canvas (`320x340`), and `pet.json` addresses each runtime frame with unique sprite-sheet filenames plus `#index` references. The filenames are unique because SwiftPM rejects duplicate processed resource names across resource folders.
 
-## Pose recognition
+## Pose groups
 
-| Runtime file | Recognized pose | Interaction role |
-|---|---|---|
-| `frames/idle/0001-stand.png` | 3/4 standing, eyes open, neutral body | Main idle anchor frame |
-| `frames/idle/0002-blink.png` | Same standing stance, slow blink | Idle blink key frame |
-| `frames/idle/0003-tail-sway.png` | Same standing stance with subtle head/tail variation | Idle tail-sway/breathing key frame |
-| `frames/hover/0001-notice.png` | Attention pose, alert eyes, slight forward curiosity | Hover enter / hover recovery |
-| `frames/hover/0002-paw-probe.png` | One front paw lifted for a soft testing gesture | Hover loop interaction |
-| `frames/tap/0001-startle.png` | Small startled hop/flinch, open mouth | Tap reaction opener |
-| `frames/sleep/0001-loaf.png` | Loaf/resting pose, eyes closed, tail tucked | Sleep state |
-| `refs/gold-standard.png` | Master 3/4 identity reference | Future pose consistency reference |
-| `layered/layered-parts-sheet.png` | Separated rigging parts | Live2D/skeletal-animation reference |
+| Runtime group | Sheet frames | Role |
+|---|---:|---|
+| `frames/idle/idle-sheet.png` | `#0`-`#14` | Neutral breathing, blink, reopen, tail sway, and return-to-stand in-betweens |
+| `frames/hover/hover-sheet.png` | `#0`-`#7` | Notice, ears-perk, head tilt, forward lean, paw probe, paw hold, and recovery |
+| `frames/tap/tap-sheet.png` | `#0`-`#9` | Startle, hop/landing, paw-settle, attention recovery, and return-to-idle transition |
+| `frames/sleep/sleep-sheet.png` | `#0`-`#6` | Lowering, paw tuck, loaf, breathing, and sleep twitch loop |
+
+## Key-frame supplementation
+
+| Original transition | Added runtime in-betweens |
+|---|---|
+| `idle` stand -> blink | `#3`, `#4`, `#5` |
+| `idle` blink -> stand | `#6`, `#7`, `#8` |
+| `idle` stand -> tail-sway | `#9`, `#10`, `#11` |
+| `idle` tail-sway -> stand | `#12`, `#13`, `#14` |
+| `hover` notice -> paw-probe | `#2`, `#3`, `#4` |
+| `hover` paw-probe -> notice | `#5`, `#6`, `#7` |
+| `tap` startle -> paw-probe | tap `#1`, `#2`, `#3` |
+| `tap` paw-probe -> notice | tap `#4`, `#5`, `#6` |
+| `tap` notice -> stand | tap `#7`, `#8`, `#9` |
+| `sleep` loaf loop | sleep `#1`, `#2`, `#3`, `#4`, `#5`, `#6` |
 
 ## Interaction sequencing
 
 ```text
 idle:
-  stand -> blink -> stand -> tail-sway -> stand
+  stand -> head-lift -> pre-blink -> half-blink -> blink -> reopen -> breathe -> stand
+  stand -> tail-pre -> tail-mid -> tail-full -> tail-sway -> tail-return -> stand
 
 hover:
-  notice -> paw-probe -> notice
+  notice -> ears-perk -> head-tilt -> forward-lean -> paw-probe -> paw-lift -> paw-hold -> recover -> notice
 
 tap:
-  startle -> paw-probe -> notice -> stand -> idle
+  startle -> alert-crouch -> hop-rise -> landing -> paw-probe -> paw-settle -> recover -> attention -> notice -> stand-recover -> neutral-step -> settle -> idle
 
 sleep:
-  loaf
+  lower -> tuck-paws -> settle -> loaf -> breathe-in -> breathe-out -> twitch -> loaf
 ```
 
 ## Quality notes
 
-- Images are transparent PNG assets.
-- No JPEG conversion is used.
-- No lossy image compression or downsampling is applied to the runtime frames.
-- UI display must keep the existing aspect-ratio-preserving rendering path.
+- Runtime assets are transparent PNG sprite sheets.
+- Existing key poses are preserved as addressed subframes and supplemented with at least three transition subframes where the original sequence had a state-to-state transition.
+- The manifest keeps `renderer.type` as `imageAssets`.
+- The app window remains `320x340`, matching the sprite subframe canvas.
