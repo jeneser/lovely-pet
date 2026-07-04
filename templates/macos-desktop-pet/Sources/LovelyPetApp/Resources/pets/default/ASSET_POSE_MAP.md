@@ -50,3 +50,24 @@ sleep:
 - The manifest keeps `renderer.type` as `imageAssets`.
 - The app window remains `320x340`, matching the sprite subframe canvas.
 - `make validate` checks PNG dimensions directly and fails if a full-frame PNG or sprite-sheet subframe does not match the configured canvas.
+## Additional generated action sheets
+
+These optional action states are imported from `cat_action_sprites_20f_row.zip` and normalized to the same `320x340` runtime subframe canvas used by the existing sheets. Each output sheet is exactly `6400x340`, so `#0`-`#19` crop to precise `320x340` frames without cutting off the cat, bowl, or paper ball.
+
+| Runtime state | Sheet | Frames | Loop | Transition behavior |
+|---|---|---:|---:|---|
+| `eat` | `frames/eat/eat-20f-sheet.png` | `#0`-`#19` | `false` | returns to `idle` |
+| `playPaperBall` | `frames/play-paper-ball/play-paper-ball-20f-sheet.png` | `#0`-`#19` | `false` | returns to `idle` |
+| `roll` | `frames/roll/roll-20f-sheet.png` | `#0`-`#19` | `true` | loops in-place |
+| `groom` | `frames/groom/groom-20f-sheet.png` | `#0`-`#19` | `false` | returns to `idle` |
+| `run` | `frames/run/run-20f-sheet.png` | `#0`-`#19` | `true` | loops in-place |
+| `walk` | `frames/walk/walk-20f-sheet.png` | `#0`-`#19` | `true` | loops in-place |
+| `yawn` | `frames/yawn/yawn-20f-sheet.png` | `#0`-`#19` | `false` | returns to `idle` |
+| `meow` | `frames/meow/meow-20f-sheet.png` | `#0`-`#19` | `false` | returns to `idle` |
+
+### Physical transition notes
+
+- `eat`, `playPaperBall`, `groom`, `yawn`, and `meow` end in an idle-compatible pose before returning to `idle`.
+- `run` and `walk` are continuous gait cycles and therefore loop instead of snapping back to the idle pose.
+- `roll` remains a loop because the sheet is a floor/side-lying roll sequence; it is intentionally not configured to jump directly to a standing idle frame.
+- The existing `sleep` state is left unchanged: it lowers into the sleeping pose and holds the final sleeping frame instead of looping back through a stand-up transition.
