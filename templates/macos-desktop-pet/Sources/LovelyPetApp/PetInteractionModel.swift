@@ -2,6 +2,17 @@ import Foundation
 import CoreGraphics
 import Combine
 
+enum PetActionState: String {
+    case eat
+    case playPaperBall
+    case roll
+    case groom
+    case run
+    case walk
+    case yawn
+    case meow
+}
+
 final class PetInteractionModel: ObservableObject {
     @Published var hovering = false
     @Published var tapping = false
@@ -15,6 +26,9 @@ final class PetInteractionModel: ObservableObject {
     @Published var touchedZone: String? = nil
 
     private var lastInteractionAt = Date()
+    private var lastAmbientActionAt = Date.distantPast
+    private var yawnedBeforeSleep = false
+    private var ambientCursor = 0
     private var lastPointerLocation: CGPoint?
     private var lastPointerSize: CGSize?
     private var resetObserver: NSObjectProtocol?
@@ -55,31 +69,37 @@ final class PetInteractionModel: ObservableObject {
         gazeX = max(-1, min(1, normalizedX))
         gazeY = max(-1, min(1, normalizedY))
         lastInteractionAt = Date()
+        yawnedBeforeSleep = false
     }
 
-    func tap() {
+    func tap() -> PetActionState? {
         if let location = lastPointerLocation, let size = lastPointerSize {
-            tap(at: location, size: size)
+            return tap(at: location, size: size)
         } else {
             react(zone: nil, fallbackMessage: nil)
+            return .meow
         }
     }
 
-    func tap(at location: CGPoint, size: CGSize) {
+    func tap(at location: CGPoint, size: CGSize) -> PetActionState? {
         let zone = classify(location: location, size: size)
         switch zone {
         case "head":
             react(zone: zone, fallbackMessage: nil)
+            return .meow
         case "tail":
             react(zone: zone, fallbackMessage: "尾巴！")
+            return .run
         case "paw":
             react(zone: zone, fallbackMessage: "握爪")
+            return .playPaperBall
         default:
             react(zone: zone, fallbackMessage: nil)
+            return .roll
         }
     }
 
-    func doubleTap() {
+    func doubleTap() -> PetActionState? {
         wake(reason: nil)
         celebrating = true
         celebrationStartedAt = Date()
@@ -88,11 +108,13 @@ final class PetInteractionModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.25) { [weak self] in
             self?.celebrating = false
         }
+        return .playPaperBall
     }
 
-    func startDragging() {
+    func startDragging() -> PetActionState? {
         wake(reason: nil)
         dragging = true
+        return .walk
     }
 
     func endDragging() {
@@ -100,13 +122,35 @@ final class PetInteractionModel: ObservableObject {
         message = nil
     }
 
-    func maybeSleep() {
-        if Date().timeIntervalSince(lastInteractionAt) > 60 {
+    @discardableResult
+    func maybeSleep(now: Date = Date()) -> Bool {
+        if now.timeIntervalSince(lastInteractionAt) > 60 {
             asleep = true
             hovering = false
             gazeX = 0
             gazeY = 0
+            return true
         }
+        return false
+    }
+
+    func nextAmbientAction(now: Date = Date()) -> PetActionState? {
+        guard !asleep, !hovering, !dragging, !tapping, !celebrating else { return nil }
+        let idleSeconds = now.timeIntervalSince(lastInteractionAt)
+        if idleSeconds < 18 { return nil }
+
+        if idleSeconds > 45, !yawnedBeforeSleep {
+            yawnedBeforeSleep = true
+            lastAmbientActionAt = now
+            return .yawn
+        }
+
+        guard now.timeIntervalSince(lastAmbientActionAt) > 24 else { return nil }
+        let cycle: [PetActionState] = [.groom, .meow, .eat]
+        let action = cycle[ambientCursor % cycle.count]
+        ambientCursor += 1
+        lastAmbientActionAt = now
+        return action
     }
 
     private func react(zone: String?, fallbackMessage: String?) {
@@ -134,6 +178,7 @@ final class PetInteractionModel: ObservableObject {
     private func wake(reason: String?) {
         asleep = false
         lastInteractionAt = Date()
+        yawnedBeforeSleep = false
         if let reason { message = reason }
     }
 
@@ -149,5 +194,8 @@ final class PetInteractionModel: ObservableObject {
         touchedZone = nil
         celebrationStartedAt = Date.distantPast
         lastInteractionAt = Date()
+        lastAmbientActionAt = Date.distantPast
+        yawnedBeforeSleep = false
+        ambientCursor = 0
     }
 }
