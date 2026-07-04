@@ -29,16 +29,17 @@ struct PetView: View {
             .gesture(
                 TapGesture(count: 2)
                     .onEnded {
-                        interaction.doubleTap()
-                        player.handleTap()
+                        let action = interaction.doubleTap()
+                        player.handleTap(queuedState: action?.rawValue)
                     }
                     .exclusively(before: TapGesture().onEnded {
-                        interaction.tap()
-                        player.handleTap()
+                        let action = interaction.tap()
+                        player.handleTap(queuedState: action?.rawValue)
                     })
             )
             .onLongPressGesture(minimumDuration: 0.45) {
-                interaction.startDragging()
+                let action = interaction.startDragging()
+                player.handleTap(queuedState: action?.rawValue)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                     interaction.endDragging()
                 }
@@ -46,8 +47,13 @@ struct PetView: View {
             .frame(width: scaledSize.width, height: scaledSize.height)
             .background(Color.clear)
             .onReceive(idleTimer) { _ in
-                interaction.maybeSleep()
-                player.handleSleep(interaction.asleep)
+                if interaction.maybeSleep() {
+                    player.handleSleep(interaction.asleep)
+                    return
+                }
+                if let action = interaction.nextAmbientAction() {
+                    player.playAmbientAction(action.rawValue)
+                }
             }
             // Use the macOS 12-compatible onChange(of:perform:) overload.
             .onChange(of: interaction.asleep, perform: { sleeping in
