@@ -145,7 +145,7 @@
     },
     "roll": {
       "fps": 8,
-      "loop": true,
+      "loop": false,
       "frames": [
         "frames/roll/roll-20f-sheet.png#0",
         "frames/roll/roll-20f-sheet.png#1",
@@ -167,7 +167,8 @@
         "frames/roll/roll-20f-sheet.png#17",
         "frames/roll/roll-20f-sheet.png#18",
         "frames/roll/roll-20f-sheet.png#19"
-      ]
+      ],
+      "nextState": "idle"
     },
     "groom": {
       "fps": 8,
@@ -198,7 +199,7 @@
     },
     "run": {
       "fps": 12,
-      "loop": true,
+      "loop": false,
       "frames": [
         "frames/run/run-20f-sheet.png#0",
         "frames/run/run-20f-sheet.png#1",
@@ -220,11 +221,12 @@
         "frames/run/run-20f-sheet.png#17",
         "frames/run/run-20f-sheet.png#18",
         "frames/run/run-20f-sheet.png#19"
-      ]
+      ],
+      "nextState": "idle"
     },
     "walk": {
       "fps": 8,
-      "loop": true,
+      "loop": false,
       "frames": [
         "frames/walk/walk-20f-sheet.png#0",
         "frames/walk/walk-20f-sheet.png#1",
@@ -246,7 +248,8 @@
         "frames/walk/walk-20f-sheet.png#17",
         "frames/walk/walk-20f-sheet.png#18",
         "frames/walk/walk-20f-sheet.png#19"
-      ]
+      ],
+      "nextState": "idle"
     },
     "yawn": {
       "fps": 8,
