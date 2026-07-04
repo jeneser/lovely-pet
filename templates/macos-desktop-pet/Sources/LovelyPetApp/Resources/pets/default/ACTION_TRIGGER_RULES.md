@@ -11,7 +11,7 @@ The generated action sheets are now connected through the same `FrameAnimationPl
 | Pointer leaves pet view | `idle` | Recovery from hover. |
 | Single tap on head | `tap -> meow -> idle` | Touch first produces the existing tap response; then the cat vocalizes. |
 | Single tap on paw area | `tap -> playPaperBall -> idle` | Paw interaction becomes a playful paw/toy response. |
-| Single tap on tail area | `tap -> run -> idle` | Tail touch startles the cat, so a short run cycle is queued after tap feedback. |
+| Single tap on tail area | `tap -> run -> idle` | Tail touch leads to a short run cycle after tap feedback. |
 | Single tap on body | `tap -> roll -> idle` | Body/rub interaction maps to a roll response, then returns to idle. |
 | Double tap | `tap -> playPaperBall -> idle` | Stronger interaction maps to the richer toy animation. |
 | Long press | `tap -> walk -> idle` | Long press suggests handled/moved pet; the cat takes a short step cycle and recovers. |
