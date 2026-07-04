@@ -4568,3 +4568,407 @@ The Google Drive bundle was normalized into runtime sprite sheets that match the
   ]
 }
 ```
+## Precision follow-up
+
+The `yawn` sheet was regenerated with action-specific component isolation. The generic importer had allowed the first runtime frame to contain multiple adjacent source cats. The fixed sheet selects exactly one detected yawn component per frame, rescales it into a centered `320x340` slot, and keeps the runtime sheet at `6400x340`.
+
+```json
+{
+  "source": "/tmp/cat_action_sprites_20f_row/cat_action_sprites_20f_row/yawn_20f_row.png",
+  "target": "templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/frames/yawn/yawn-20f-sheet.png",
+  "detected_components": 19,
+  "source_indexes": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18
+  ],
+  "output_size": [
+    6400,
+    340
+  ],
+  "max_source_crop_size": [
+    115,
+    184
+  ],
+  "scale": 1.413,
+  "frames": [
+    {
+      "index": 0,
+      "source_component_index": 0,
+      "source_box": [
+        18,
+        286,
+        133,
+        454
+      ],
+      "render_size": [
+        162,
+        237
+      ],
+      "paste_xy": [
+        79,
+        83
+      ]
+    },
+    {
+      "index": 1,
+      "source_component_index": 1,
+      "source_box": [
+        125,
+        286,
+        239,
+        454
+      ],
+      "render_size": [
+        161,
+        237
+      ],
+      "paste_xy": [
+        399,
+        83
+      ]
+    },
+    {
+      "index": 2,
+      "source_component_index": 2,
+      "source_box": [
+        232,
+        286,
+        347,
+        454
+      ],
+      "render_size": [
+        162,
+        237
+      ],
+      "paste_xy": [
+        719,
+        83
+      ]
+    },
+    {
+      "index": 3,
+      "source_component_index": 3,
+      "source_box": [
+        342,
+        286,
+        456,
+        454
+      ],
+      "render_size": [
+        161,
+        237
+      ],
+      "paste_xy": [
+        1039,
+        83
+      ]
+    },
+    {
+      "index": 4,
+      "source_component_index": 4,
+      "source_box": [
+        451,
+        285,
+        565,
+        454
+      ],
+      "render_size": [
+        161,
+        239
+      ],
+      "paste_xy": [
+        1359,
+        81
+      ]
+    },
+    {
+      "index": 5,
+      "source_component_index": 5,
+      "source_box": [
+        567,
+        281,
+        680,
+        454
+      ],
+      "render_size": [
+        160,
+        244
+      ],
+      "paste_xy": [
+        1680,
+        76
+      ]
+    },
+    {
+      "index": 6,
+      "source_component_index": 6,
+      "source_box": [
+        683,
+        278,
+        795,
+        454
+      ],
+      "render_size": [
+        158,
+        249
+      ],
+      "paste_xy": [
+        2001,
+        71
+      ]
+    },
+    {
+      "index": 7,
+      "source_component_index": 7,
+      "source_box": [
+        799,
+        275,
+        910,
+        454
+      ],
+      "render_size": [
+        157,
+        253
+      ],
+      "paste_xy": [
+        2321,
+        67
+      ]
+    },
+    {
+      "index": 8,
+      "source_component_index": 8,
+      "source_box": [
+        914,
+        272,
+        1026,
+        455
+      ],
+      "render_size": [
+        158,
+        259
+      ],
+      "paste_xy": [
+        2641,
+        61
+      ]
+    },
+    {
+      "index": 9,
+      "source_component_index": 9,
+      "source_box": [
+        1032,
+        271,
+        1145,
+        454
+      ],
+      "render_size": [
+        160,
+        259
+      ],
+      "paste_xy": [
+        2960,
+        61
+      ]
+    },
+    {
+      "index": 10,
+      "source_component_index": 9,
+      "source_box": [
+        1032,
+        271,
+        1145,
+        454
+      ],
+      "render_size": [
+        160,
+        259
+      ],
+      "paste_xy": [
+        3280,
+        61
+      ]
+    },
+    {
+      "index": 11,
+      "source_component_index": 10,
+      "source_box": [
+        1151,
+        270,
+        1263,
+        454
+      ],
+      "render_size": [
+        158,
+        260
+      ],
+      "paste_xy": [
+        3601,
+        60
+      ]
+    },
+    {
+      "index": 12,
+      "source_component_index": 11,
+      "source_box": [
+        1269,
+        272,
+        1382,
+        454
+      ],
+      "render_size": [
+        160,
+        257
+      ],
+      "paste_xy": [
+        3920,
+        63
+      ]
+    },
+    {
+      "index": 13,
+      "source_component_index": 12,
+      "source_box": [
+        1386,
+        276,
+        1497,
+        454
+      ],
+      "render_size": [
+        157,
+        252
+      ],
+      "paste_xy": [
+        4241,
+        68
+      ]
+    },
+    {
+      "index": 14,
+      "source_component_index": 13,
+      "source_box": [
+        1503,
+        282,
+        1613,
+        454
+      ],
+      "render_size": [
+        155,
+        243
+      ],
+      "paste_xy": [
+        4562,
+        77
+      ]
+    },
+    {
+      "index": 15,
+      "source_component_index": 14,
+      "source_box": [
+        1617,
+        286,
+        1729,
+        454
+      ],
+      "render_size": [
+        158,
+        237
+      ],
+      "paste_xy": [
+        4881,
+        83
+      ]
+    },
+    {
+      "index": 16,
+      "source_component_index": 15,
+      "source_box": [
+        1728,
+        288,
+        1839,
+        454
+      ],
+      "render_size": [
+        157,
+        235
+      ],
+      "paste_xy": [
+        5201,
+        85
+      ]
+    },
+    {
+      "index": 17,
+      "source_component_index": 16,
+      "source_box": [
+        1836,
+        289,
+        1947,
+        454
+      ],
+      "render_size": [
+        157,
+        233
+      ],
+      "paste_xy": [
+        5521,
+        87
+      ]
+    },
+    {
+      "index": 18,
+      "source_component_index": 17,
+      "source_box": [
+        1943,
+        290,
+        2053,
+        454
+      ],
+      "render_size": [
+        155,
+        232
+      ],
+      "paste_xy": [
+        5842,
+        88
+      ]
+    },
+    {
+      "index": 19,
+      "source_component_index": 18,
+      "source_box": [
+        2049,
+        289,
+        2161,
+        454
+      ],
+      "render_size": [
+        158,
+        233
+      ],
+      "paste_xy": [
+        6161,
+        87
+      ]
+    }
+  ]
+}
+```
