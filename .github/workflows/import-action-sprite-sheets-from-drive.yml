@@ -1,0 +1,47 @@
+name: Import action sprite sheets from Drive
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/import-action-sprite-sheets-from-drive.yml
+      - pipeline/scripts/import_action_sprite_sheets.py
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  import-action-sprite-sheets:
+    if: github.actor != 'github-actions[bot]' && github.event.pull_request.head.ref == 'codex-action-sprite-sheets'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: codex-action-sprite-sheets
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install image tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pillow numpy scipy
+
+      - name: Import action sprite sheets from Google Drive
+        run: python pipeline/scripts/import_action_sprite_sheets.py
+
+      - name: Validate pet manifest
+        run: python pipeline/scripts/validate-pet-manifest.py templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json
+
+      - name: Commit imported action sprites and cleanup
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Import action sprite sheets from Drive
+          branch: codex-action-sprite-sheets
+          file_pattern: templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/pet.json templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/ASSET_POSE_MAP.md templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/ACTION_SPRITE_MAP.md templates/macos-desktop-pet/Sources/LovelyPetApp/Resources/pets/default/frames .github/workflows/import-action-sprite-sheets-from-drive.yml pipeline/scripts/import_action_sprite_sheets.py
