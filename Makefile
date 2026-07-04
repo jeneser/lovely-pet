@@ -6,6 +6,7 @@ COMPAT_REPORT := $(TEMPLATE_DIR)/dist/macos-compatibility-report.md
 
 validate:
 	python3 pipeline/scripts/validate-pet-manifest.py $(PET_MANIFEST)
+	python3 pipeline/scripts/validate-action-sprite-sheets.py $(PET_MANIFEST)
 
 compat:
 	python3 pipeline/scripts/validate-macos-compatibility.py --report $(COMPAT_REPORT)
