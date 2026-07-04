@@ -11,6 +11,7 @@ final class FrameAnimationPlayer: ObservableObject {
     private let manifest: PetManifest
     private var timer: Timer?
     private var frameIndex = 0
+    private var queuedStateAfterCurrent: String?
 
     init(manifest: PetManifest) {
         self.manifest = manifest
@@ -23,8 +24,9 @@ final class FrameAnimationPlayer: ObservableObject {
         timer?.invalidate()
     }
 
-    func play(state: String) {
+    func play(state: String, queuedState: String? = nil) {
         guard let stateConfig = manifest.states[state] else { return }
+        queuedStateAfterCurrent = queuedState.flatMap { manifest.states[$0] == nil ? nil : $0 }
         timer?.invalidate()
         timer = nil
         stateName = state
@@ -40,26 +42,46 @@ final class FrameAnimationPlayer: ObservableObject {
         }
     }
 
+    @discardableResult
+    func playAmbientAction(_ state: String) -> Bool {
+        guard canStartAmbientAction, manifest.states[state] != nil else { return false }
+        play(state: state)
+        return true
+    }
+
     func handleHover(_ hovering: Bool) {
         if hovering, manifest.states["hover"] != nil {
+            guard stateName == manifest.defaultState || stateName == "hover" || stateName == "sleep" else { return }
             play(state: "hover")
-        } else {
+        } else if stateName == "hover" {
             play(state: manifest.defaultState)
         }
     }
 
-    func handleTap() {
+    func handleTap(queuedState: String? = nil) {
         if manifest.states["tap"] != nil {
-            play(state: "tap")
+            play(state: "tap", queuedState: queuedState)
+        } else if let queuedState, manifest.states[queuedState] != nil {
+            play(state: queuedState)
         }
     }
 
     func handleSleep(_ sleeping: Bool) {
         if sleeping, manifest.states["sleep"] != nil {
-            play(state: "sleep")
+            guard stateName == manifest.defaultState || stateName == "hover" || stateName == "sleep" else { return }
+            if stateName == "sleep" { return }
+            if manifest.states["yawn"] != nil {
+                play(state: "yawn", queuedState: "sleep")
+            } else {
+                play(state: "sleep")
+            }
         } else if stateName == "sleep" {
             play(state: manifest.defaultState)
         }
+    }
+
+    private var canStartAmbientAction: Bool {
+        stateName == manifest.defaultState || stateName == "hover"
     }
 
     private func advance() {
@@ -69,7 +91,9 @@ final class FrameAnimationPlayer: ObservableObject {
             if state.loop {
                 frameIndex = 0
             } else {
-                play(state: state.nextState ?? manifest.defaultState)
+                let queuedState = queuedStateAfterCurrent
+                queuedStateAfterCurrent = nil
+                play(state: queuedState ?? state.nextState ?? manifest.defaultState)
                 return
             }
         }
